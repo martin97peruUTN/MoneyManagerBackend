@@ -1,7 +1,11 @@
 
-import express from 'express';
-import routes from './routes/index.js'
-import { routerUsers } from './routes/users.js'
+const express = require('express');
+//import middleware1 from './middleware/middleware1.js';
+const routes = require('./routes/index.js')
+const {routerUsers} = require('./routes/users.js')
+const connectDB = require('./db.js')
+
+connectDB()
 
 const app = express();
 
@@ -9,7 +13,7 @@ const app = express();
 const port = process.env.PORT || 1234
 
 //middlewares
-
+//app.use(middleware1)
 
 //routes
 app.use(routes)

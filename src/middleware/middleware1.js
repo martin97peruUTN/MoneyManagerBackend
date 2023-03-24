@@ -3,4 +3,4 @@ const middleware1 = (req, res, next) => {
     next()
 }
 
-export default middleware1;
+module.exports = middleware1;

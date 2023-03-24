@@ -1,4 +1,4 @@
-import express from 'express';
+const express = require('express');
 
 const router = express.Router()
 
@@ -10,4 +10,6 @@ router.get('/profile', (req, res) => {
     res.send('Profile route')
 })
 
-export {router as routerUsers}
+module.exports = {
+    routerUsers: router
+}

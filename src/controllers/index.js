@@ -6,7 +6,7 @@ const prueba = (req, res) => {
     res.send('PRUEBA')
 }
 
-export default {
+module.exports = {
     index,
     prueba
 }
