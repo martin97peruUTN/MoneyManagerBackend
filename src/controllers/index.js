@@ -6,17 +6,17 @@ require('dotenv').config()
 const users = [
     {
         username: 'martin97peru',
-        password: 'prueba123'
+        password: 'test123'
     },
     {
         username: 'martin97peru2',
-        password: 'prueba456'
+        password: 'test456'
     }
 ];
 
 const jwtLogin = (req, res) => {
     const {username, password} = req.body
-    //TODO Buscar en la DB
+    //TODO Search on DB
     const user = users.find((user) => user.username === username)
 
     if (!user || user.password !== password) {
@@ -33,12 +33,17 @@ const index = (req, res) => {
     res.send('Hello World!')
 }
 
-const pruebaToken = (req, res) => {
-    res.send(`PRUEBA con user: ${req.user.username}`)
+const testToken = (req, res) => {
+    res.send(`Test with user: ${req.user.username}`)
+}
+
+const homepage = (req, res) => {
+    res.send("Homepage")
 }
 
 module.exports = {
     index,
-    pruebaToken,
-    jwtLogin
+    testToken,
+    jwtLogin,
+    homepage
 }

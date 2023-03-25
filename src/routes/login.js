@@ -1,10 +1,12 @@
 const express = require('express');
-const { jwtLogin } = require('../controllers/index')
+const { jwtLogin, homepage } = require('../controllers/index')
 
 const router = express.Router()
+
+router.get('/', homepage)
 
 router.post('/login', jwtLogin)
 
 module.exports = {
-    unprotectedRoutes: router
+    login: router
 }
