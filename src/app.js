@@ -1,8 +1,8 @@
-const express = require('express');
+import express, { urlencoded, json } from 'express';
 
-const authenticateToken = require('./middleware/JWTAuthentication')
-const {login} = require('./routes/login')
-const {tests} = require('./routes/tests')
+import authenticateToken from './middleware/JWTAuthentication.js';
+import { login } from './routes/login.js';
+import { tests } from './routes/tests.js';
 
 //const connectDB = require('./db.js')
 //connectDB()
@@ -13,8 +13,8 @@ const app = express();
 const port = process.env.PORT || 3000
 
 //Middleware
-app.use(express.urlencoded({ extended: false }))
-app.use(express.json())
+app.use(urlencoded({ extended: false }))
+app.use(json())
 //All routes starting with /api will be protected
 app.use('/api', authenticateToken)
 

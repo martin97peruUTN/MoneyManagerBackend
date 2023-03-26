@@ -1,5 +1,7 @@
-const jwt = require('jsonwebtoken')
-require('dotenv').config()
+import jsonwebtoken from 'jsonwebtoken';
+const { sign } = jsonwebtoken;
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 //Unprotected
 
@@ -14,7 +16,7 @@ const users = [
     }
 ];
 
-const jwtLogin = (req, res) => {
+export const jwtLogin = (req, res) => {
     const {username, password} = req.body
     //TODO Search on DB
     const user = users.find((user) => user.username === username)
@@ -23,27 +25,20 @@ const jwtLogin = (req, res) => {
         return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    const token = jwt.sign({username, password}, process.env.TOKEN_SECRET, { expiresIn: '6h' });
+    const token = sign({username, password}, process.env.TOKEN_SECRET, { expiresIn: '6h' });
     res.json(token)
 }
 
 //Protected
 
-const index = (req, res) => {
+export const index = (req, res) => {
     res.send('Hello World!')
 }
 
-const testToken = (req, res) => {
+export const testToken = (req, res) => {
     res.send(`Test with user: ${req.user.username}`)
 }
 
-const homepage = (req, res) => {
+export const homepage = (req, res) => {
     res.send("Homepage")
-}
-
-module.exports = {
-    index,
-    testToken,
-    jwtLogin,
-    homepage
 }

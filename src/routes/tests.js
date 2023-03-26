@@ -1,13 +1,11 @@
-const express = require('express');
+import { Router } from 'express';
 
-const indexController = require('../controllers/index')
+import { index, testToken } from '../controllers/index.js';
 
-const router = express.Router()
+const router = Router()
 
-router.get('/api', indexController.index)
+router.get('/api', index)
 
-router.get('/api/testToken', indexController.testToken)
+router.get('/api/testToken', testToken)
 
-module.exports = {
-    tests: router
-}
+export const tests = router;

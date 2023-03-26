@@ -1,12 +1,10 @@
-const express = require('express');
-const { jwtLogin, homepage } = require('../controllers/index')
+import { Router } from 'express';
+import { homepage, jwtLogin } from '../controllers/index.js';
 
-const router = express.Router()
+const router = Router()
 
 router.get('/', homepage)
 
 router.post('/login', jwtLogin)
 
-module.exports = {
-    login: router
-}
+export const login = router;
