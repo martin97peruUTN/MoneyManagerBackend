@@ -3,8 +3,6 @@ const { sign } = jsonwebtoken;
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-//Unprotected
-
 const users = [
     {
         username: 'martin97peru',
@@ -27,16 +25,6 @@ export const jwtLogin = (req, res) => {
 
     const token = sign({username, password}, process.env.TOKEN_SECRET, { expiresIn: '6h' });
     res.json(token)
-}
-
-//Protected
-
-export const index = (req, res) => {
-    res.send('Hello World!')
-}
-
-export const testToken = (req, res) => {
-    res.send(`Test with user: ${req.user.username}`)
 }
 
 export const homepage = (req, res) => {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { homepage, jwtLogin } from '../controllers/index.js';
+import { homepage, jwtLogin } from '../controllers/login.controller.js';
 
 const router = Router()
 
@@ -7,4 +7,4 @@ router.get('/', homepage)
 
 router.post('/login', jwtLogin)
 
-export const login = router;
+export const loginRoutes = router;
