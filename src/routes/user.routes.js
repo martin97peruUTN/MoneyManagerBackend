@@ -4,16 +4,16 @@ import { getAllUsers, getUserById, createUser, createUser2, updateUser, deleteUs
 
 const router = Router()
 
-router.get('/api/user', getAllUsers)
+router.get('/user', getAllUsers)
 
-router.get('/api/user/:id', getUserById)
+router.get('/user/:id', getUserById)
 
-router.post('/api/user', createUser)
+router.post('/user', createUser)
 
-router.post('/api/user2', createUser2)
+router.post('/user2', createUser2)
 
-router.put('/api/user/:id', updateUser)
+router.put('/user/:id', updateUser)
 
-router.delete('/api/user/:id', deleteUser)
+router.delete('/user/:id', deleteUser)
 
 export default router;

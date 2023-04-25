@@ -20,8 +20,8 @@ app.use('/api', authenticateToken)
 
 //Routes
 app.use(loginRoutes)
-app.use(testsRoutes)
-app.use(userRoutes)
+app.use('/api', testsRoutes)
+app.use('/api', userRoutes)
 
 app.listen(port, () => {
 	console.log(`Listening on port ${port} 😎 🤙`)
