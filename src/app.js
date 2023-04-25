@@ -20,7 +20,7 @@ app.use('/api', authenticateToken)
 
 //Routes
 app.use(loginRoutes)
-app.use('/api', testsRoutes)
+app.use(testsRoutes)
 app.use('/api', userRoutes)
 
 app.listen(port, () => {
