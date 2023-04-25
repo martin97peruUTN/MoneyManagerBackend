@@ -23,6 +23,13 @@ app.use(loginRoutes)
 app.use(testsRoutes)
 app.use('/api', userRoutes)
 
+//Not found
+app.use((req, res) => {
+	res.status(404).send({
+		message: 'Endpoint not found'
+	})
+})
+
 app.listen(port, () => {
 	console.log(`Listening on port ${port} 😎 🤙`)
 })
