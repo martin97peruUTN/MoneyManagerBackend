@@ -1,6 +1,13 @@
 import { Router } from 'express';
 
-import { getAllUsers, getUserById, createUser, createUser2, updateUser, deleteUser } from '../controllers/user.controller.js';
+import { 
+    getAllUsers, 
+    getUserById, 
+    createUser, 
+    /*createUser2,*/ 
+    updateUser, 
+    deleteUser 
+} from '../controllers/user.controller.js';
 
 const router = Router()
 
@@ -10,7 +17,7 @@ router.get('/user/:id', getUserById)
 
 router.post('/user', createUser)
 
-router.post('/user2', createUser2)
+//router.post('/user2', createUser2)
 
 router.patch('/user/:id', updateUser)
 

@@ -3,6 +3,11 @@ const { sign } = jsonwebtoken;
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import {
+    jwtLoginService,
+    homepageService
+} from '../services/login.service.js'
+
 const users = [
     {
         username: 'martin97peru',
@@ -16,8 +21,7 @@ const users = [
 
 export const jwtLogin = (req, res) => {
     const {username, password} = req.body
-    //TODO Search on DB
-    const user = users.find((user) => user.username === username)
+    const user = jwtLoginService(username)
 
     if (!user || user.password !== password) {
         return res.status(401).json({ message: 'Invalid username or password' });
@@ -28,5 +32,5 @@ export const jwtLogin = (req, res) => {
 }
 
 export const homepage = (req, res) => {
-    res.send("Homepage")
+    res.send(homepageService())
 }

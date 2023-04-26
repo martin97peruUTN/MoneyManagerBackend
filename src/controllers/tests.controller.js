@@ -1,14 +1,13 @@
-import { connectionDB } from '../db.js';
+import { 
+    indexService,  
+    dbtestService 
+} from '../services/tests.service.js';
 
 export const index = (req, res) => {
-    res.send('Hello World!')
-}
-
-export const testToken = (req, res) => {
-    res.send(`Test with user: ${req.user.username}`)
+    res.send(indexService())
 }
 
 export const dbtest = async (req, res) => {
-	const [result] = await connectionDB.query('SELECT 1 + 1 AS result')
-	res.status(200).json(result[0])
+    const result = await dbtestService()
+	res.send(result)
 }

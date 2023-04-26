@@ -1,9 +1,14 @@
-import { connectionDB } from '../db.js';
+import { 
+    getAllUsersService, 
+    getUserByIdService, 
+    createUserService, 
+    updateUserService, 
+    deleteUserService 
+} from '../services/user.service.js';
 
 export const getAllUsers = async (req, res) => {
     try {
-        const [rows] = await connectionDB.query('SELECT * FROM user')
-        res.status(200).json(rows)
+        res.status(200).json(await getAllUsersService())
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -11,7 +16,7 @@ export const getAllUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
     try {
-        const [rows] = await connectionDB.query('SELECT * FROM user WHERE id = ?', [req.params.id])
+        const rows = await getUserByIdService(req.params.id)
         if(rows.length === 0) {
             res.status(404).send({
                 message: 'User not found!'
@@ -24,7 +29,6 @@ export const getUserById = async (req, res) => {
     }
 }
 
-//Option 1
 export const createUser = async (req, res) => {
     try {
         const { username, password, name, lastname } = req.body
@@ -34,25 +38,8 @@ export const createUser = async (req, res) => {
             })
             return
         }
-        const [rows] = await connectionDB.query('INSERT INTO user SET ?', req.body)
-        res.status(200).json(rows.insertId)
-    } catch (error) {
-        return res.status(500).json({ message: "Something went wrong" });
-    }
-}
-
-//Option 2
-export const createUser2 = async (req, res) => {
-    try {
-        const { username, password, name, lastname } = req.body
-        if (!username || !password || !name || !lastname) {
-            res.status(400).send({
-                message:'Missing data!'
-            })
-            return
-        }
-        const [rows] = await connectionDB.query('INSERT INTO user VALUES (NULL, ?, ?, ?, ?)', [username, password, name, lastname])
-        res.status(200).json(rows.insertId)
+        const insertId = await createUserService(req.body)
+        res.status(200).json(insertId)
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -61,21 +48,14 @@ export const createUser2 = async (req, res) => {
 export const updateUser = async (req, res) => {
     try {
         const {username, password, name, lastname} = req.body
-        const [result] = await connectionDB.query(
-            `UPDATE user SET 
-                username = IFNULL(?, username), 
-                password = IFNULL(?, password), 
-                name = IFNULL(?, name), 
-                lastname = IFNULL(?, lastname)
-                WHERE id = ?`, 
-            [username, password, name, lastname, req.params.id])
+        const result = await updateUserService(username, password, name, lastname, req.params.id)
         if(result.affectedRows === 0) {
             res.status(404).send({
                 message: 'User not found!'
             })
             return
         }
-        const [rows] = await connectionDB.query('SELECT * FROM user WHERE id = ?', [req.params.id])
+        const rows = await getUserByIdService(req.params.id)
         res.status(200).json(rows[0])
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
@@ -84,18 +64,36 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
     try {
-        const [result] = await connectionDB.query('DELETE FROM user WHERE id = ?', [req.params.id])
+        const result = await deleteUserService(req.params.id)
         if(result.affectedRows === 0) {
             res.status(404).send({
                 message: 'User not found!'
             })
             return
         }
-        res.status(204)
+        return res.status(204).json();
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
+
+
+//Option 2 de createUser
+// export const createUser2 = async (req, res) => {
+//     try {
+//         const { username, password, name, lastname } = req.body
+//         if (!username || !password || !name || !lastname) {
+//             res.status(400).send({
+//                 message:'Missing data!'
+//             })
+//             return
+//         }
+//         const [rows] = await connectionDB.query('INSERT INTO user VALUES (NULL, ?, ?, ?, ?)', [username, password, name, lastname])
+//         res.status(200).json(rows.insertId)
+//     } catch (error) {
+//         return res.status(500).json({ message: "Something went wrong" });
+//     }
+// }
 
 //UPDATE old code
 // export const updateUser = async (req, res) => {

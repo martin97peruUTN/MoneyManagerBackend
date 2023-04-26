@@ -3,6 +3,8 @@ dotenv.config();
 //con el /promise le digo que use promesas
 import { createConnection, createPool } from 'mysql2/promise'
 
+export const connectionDB = createPool(process.env.DATABASE_URL)
+
 // function connectDB(){
 //     const connectionDB = createConnection(process.env.DATABASE_URL)
 //     console.log('Connected to PlanetScale!')
@@ -13,5 +15,3 @@ import { createConnection, createPool } from 'mysql2/promise'
 
 // //connection.end()
 // export default connectDB
-
-export const connectionDB = createPool(process.env.DATABASE_URL)

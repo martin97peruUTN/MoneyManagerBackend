@@ -1,13 +1,11 @@
 import { Router } from 'express';
 
-import { index, testToken, dbtest } from '../controllers/tests.controller.js';
+import { index, dbtest } from '../controllers/tests.controller.js';
 
 const tests = Router()
 
-tests.get('/', index)
+tests.get('/index', index)
 
-tests.get('/testToken', testToken)
-
-tests.get('/dbtest2', dbtest)
+tests.get('/dbtest', dbtest)
 
 export default tests;
