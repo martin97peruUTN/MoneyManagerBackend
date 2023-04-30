@@ -1,6 +1,6 @@
 import { OkPacket, RowDataPacket } from "mysql2"
 
-import { NewUser, User } from '../types.js';
+import { UserWithoutId, User } from '../types.js';
 import { connectionDB } from '../db';
 
 export const getAllUsersService = async (): Promise<User[]> => {
@@ -15,7 +15,7 @@ export const getUserByIdService = async (id: Number): Promise<User[]> => {
     return users
 }
 
-export const createUserService = async (newUser: NewUser): Promise<Number> => {
+export const createUserService = async (newUser: UserWithoutId): Promise<Number> => {
     const [rows] = await connectionDB.query('INSERT INTO user SET ?', newUser) as OkPacket[]
     return rows.insertId
 }

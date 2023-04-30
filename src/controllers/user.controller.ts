@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
-import { NewUser, User } from '../types';
-
+import { UserWithoutId, User } from '../types';
+import { toUserWithoutId } from '../utils/user.utils';
 import {
     getAllUsersService,
     getUserByIdService,
@@ -14,6 +14,9 @@ export const getAllUsers = async (_req: Request, res: Response) => {
     try {
         res.status(200).json(await getAllUsersService())
     } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -29,22 +32,23 @@ export const getUserById = async (req: Request, res: Response) => {
         }
         res.status(200).json(rows[0])
     } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
 
 export const createUser = async (req: Request, res: Response) => {
     try {
-        const { username, password, name, lastname } = req.body
-        if (!username || !password || !name || !lastname) {
-            return res.status(400).send({
-                message: 'Missing data!'
-            })
-        }
-        const newUser: NewUser = { username, password, name, lastname }
+        const newUser: UserWithoutId = toUserWithoutId(req.body)
+        
         const insertId = await createUserService(newUser)
         res.status(200).json(insertId)
     } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -61,6 +65,9 @@ export const updateUser = async (req: Request, res: Response) => {
         const rows = await getUserByIdService(+req.params.id)
         res.status(200).json(rows[0])
     } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -75,6 +82,9 @@ export const deleteUser = async (req: Request, res: Response) => {
         }
         return res.status(204).json();
     } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }

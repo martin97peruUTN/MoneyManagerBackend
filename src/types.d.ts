@@ -6,4 +6,4 @@ export interface User {
     lastname: string;
 };
 
-export type NewUser = Omit<User, 'id'>;
+export type UserWithoutId = Omit<User, 'id'>;
