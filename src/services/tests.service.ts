@@ -1,4 +1,5 @@
 import { RowDataPacket } from 'mysql2';
+
 import { connectionDB } from '../db';
 
 export const indexService = () => {

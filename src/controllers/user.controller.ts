@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { RowDataPacket } from "mysql2"
+
+import { NewUser, User } from '../types';
 
 import {
     getAllUsersService,
@@ -8,7 +9,6 @@ import {
     updateUserService,
     deleteUserService
 } from '../services/user.service';
-import { NewUser, User } from '../types';
 
 export const getAllUsers = async (_req: Request, res: Response) => {
     try {
@@ -20,7 +20,6 @@ export const getAllUsers = async (_req: Request, res: Response) => {
 
 export const getUserById = async (req: Request, res: Response) => {
     try {
-        /**Sino tambien Number(req.params.id)*/
         const rows = await getUserByIdService(+req.params.id) as User[]
         if (rows.length === 0) {
             res.status(404).send({
@@ -68,7 +67,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
     try {
-        const affectedRows = await deleteUserService(+req.params.id)
+        const affectedRows = await deleteUserService(Number(req.params.id))
         if (affectedRows === 0) {
             return res.status(404).send({
                 message: 'User not found!'
