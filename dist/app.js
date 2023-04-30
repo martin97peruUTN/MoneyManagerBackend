@@ -22,14 +22,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importStar(require("express"));
 //IMPORTANTE: si uso Typescript, no tengo que poner "type":"modules" en el package.json
 //Sino no traspila bien. Igualmente aca tengo que usar la notacion de import de TS
-// import authenticateToken from './middleware/JWTAuthentication.js';
-// import { loginRoutes } from './routes/login.routes.js';
-// import testsRoutes from './routes/tests.routes.js';
-// import userRoutes from './routes/user.routes.js';
+const JWTAuthentication_1 = __importDefault(require("./middleware/JWTAuthentication"));
+const login_routes_1 = require("./routes/login.routes");
+const tests_routes_1 = __importDefault(require("./routes/tests.routes"));
+const user_routes_1 = __importDefault(require("./routes/user.routes"));
 //import { connectionDB } from './db.js';
 const app = (0, express_1.default)();
 //Settings
@@ -38,14 +41,14 @@ const port = process.env.PORT || 3000;
 app.use((0, express_1.urlencoded)({ extended: false }));
 app.use((0, express_1.json)());
 //All routes starting with /api will be protected
-// app.use('/api', authenticateToken)
-// //Routes
-// app.use(loginRoutes)
-// app.use(testsRoutes)
-// app.use('/api', userRoutes)
+app.use('/api', JWTAuthentication_1.default);
+//Routes
+app.use(login_routes_1.loginRoutes);
+app.use(tests_routes_1.default);
+app.use('/api', user_routes_1.default);
 //Not found
-//TS no hace falta poner Request y Response explicitamente, son inferidos (poner el mousea arriba y sale)
-app.use((req, res) => {
+//TS no hace falta poner Request y Response explicitamente, son inferidos porque app es de tipo Express
+app.use((_req, res) => {
     res.status(404).send({
         message: 'Endpoint not found 🤷‍♂️'
     });
