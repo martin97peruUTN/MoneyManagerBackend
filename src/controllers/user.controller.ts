@@ -8,7 +8,7 @@ import {
     updateUserService,
     deleteUserService
 } from '../services/user.service';
-import { User } from '../types';
+import { NewUser, User } from '../types';
 
 export const getAllUsers = async (_req: Request, res: Response) => {
     try {
@@ -38,12 +38,12 @@ export const createUser = async (req: Request, res: Response) => {
     try {
         const { username, password, name, lastname } = req.body
         if (!username || !password || !name || !lastname) {
-            res.status(400).send({
+            return res.status(400).send({
                 message: 'Missing data!'
             })
-            return
         }
-        const insertId = await createUserService(req.body)
+        const newUser: NewUser = { username, password, name, lastname }
+        const insertId = await createUserService(newUser)
         res.status(200).json(insertId)
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
