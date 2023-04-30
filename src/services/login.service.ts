@@ -9,7 +9,7 @@ const users = [
     }
 ];
 
-export const jwtLoginService = (username) => {
+export const jwtLoginService = (username: String) => {
     //TODO Search on DB
     const user = users.find((user) => user.username === username)
     return user

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { index, dbtest } from '../controllers/tests.controller.js';
+import { index, dbtest } from '../controllers/tests.controller';
 
 const tests = Router()
 

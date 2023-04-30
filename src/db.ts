@@ -1,9 +1,17 @@
 import dotenv from 'dotenv';
 dotenv.config();
 //con el /promise le digo que use promesas
-import { createConnection, createPool } from 'mysql2/promise'
+import { Pool, createConnection, createPool } from 'mysql2/promise'
 
-export const connectionDB = createPool(process.env.DATABASE_URL)
+let connectionDBPool: Pool
+
+if(process.env.DATABASE_URL){
+    connectionDBPool = createPool(process.env.DATABASE_URL)
+}else{
+    throw new Error('Database URL not found')
+}
+
+export const connectionDB = connectionDBPool
 
 // function connectDB(){
 //     const connectionDB = createConnection(process.env.DATABASE_URL)

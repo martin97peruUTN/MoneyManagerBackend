@@ -1,12 +1,16 @@
-import { 
-    getAllUsersService, 
-    getUserByIdService, 
-    createUserService, 
-    updateUserService, 
-    deleteUserService 
-} from '../services/user.service.js';
+import { Request, Response } from 'express';
+import { RowDataPacket } from "mysql2"
 
-export const getAllUsers = async (req, res) => {
+import {
+    getAllUsersService,
+    getUserByIdService,
+    createUserService,
+    updateUserService,
+    deleteUserService
+} from '../services/user.service';
+import { User } from '../types';
+
+export const getAllUsers = async (_req: Request, res: Response) => {
     try {
         res.status(200).json(await getAllUsersService())
     } catch (error) {
@@ -14,10 +18,11 @@ export const getAllUsers = async (req, res) => {
     }
 }
 
-export const getUserById = async (req, res) => {
+export const getUserById = async (req: Request, res: Response) => {
     try {
-        const rows = await getUserByIdService(req.params.id)
-        if(rows.length === 0) {
+        /**Sino tambien Number(req.params.id)*/
+        const rows = await getUserByIdService(+req.params.id) as User[]
+        if (rows.length === 0) {
             res.status(404).send({
                 message: 'User not found!'
             })
@@ -29,12 +34,12 @@ export const getUserById = async (req, res) => {
     }
 }
 
-export const createUser = async (req, res) => {
+export const createUser = async (req: Request, res: Response) => {
     try {
         const { username, password, name, lastname } = req.body
         if (!username || !password || !name || !lastname) {
             res.status(400).send({
-                message:'Missing data!'
+                message: 'Missing data!'
             })
             return
         }
@@ -45,31 +50,29 @@ export const createUser = async (req, res) => {
     }
 }
 
-export const updateUser = async (req, res) => {
+export const updateUser = async (req: Request, res: Response) => {
     try {
-        const {username, password, name, lastname} = req.body
-        const result = await updateUserService(username, password, name, lastname, req.params.id)
-        if(result.affectedRows === 0) {
-            res.status(404).send({
+        const { username, password, name, lastname } = req.body
+        const affectedRows = await updateUserService(username, password, name, lastname, +req.params.id)
+        if (affectedRows === 0) {
+            return res.status(404).send({
                 message: 'User not found!'
             })
-            return
         }
-        const rows = await getUserByIdService(req.params.id)
+        const rows = await getUserByIdService(+req.params.id)
         res.status(200).json(rows[0])
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
 
-export const deleteUser = async (req, res) => {
+export const deleteUser = async (req: Request, res: Response) => {
     try {
-        const result = await deleteUserService(req.params.id)
-        if(result.affectedRows === 0) {
-            res.status(404).send({
+        const affectedRows = await deleteUserService(+req.params.id)
+        if (affectedRows === 0) {
+            return res.status(404).send({
                 message: 'User not found!'
             })
-            return
         }
         return res.status(204).json();
     } catch (error) {
