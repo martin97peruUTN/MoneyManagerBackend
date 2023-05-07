@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS account (
 CREATE TABLE IF NOT EXISTS tranfer (
     id SERIAL PRIMARY KEY,
     amount FLOAT NOT NULL,
-    comment VARCHAR(100),
+    comment VARCHAR(255),
     transferDate DATE NOT NULL,
     origin_account_id INT NOT NULL,
     destiny_account_id INT NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS transaction_category (
 CREATE TABLE IF NOT EXISTS transaction (
     id SERIAL PRIMARY KEY,
     amount FLOAT NOT NULL,
-    comment VARCHAR(100),
+    comment VARCHAR(255),
     transferDate DATE NOT NULL,
     account_id INT NOT NULL,
     transaction_category_id INT NOT NULL,
