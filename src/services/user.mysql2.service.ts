@@ -1,7 +1,7 @@
 import { OkPacket, RowDataPacket } from "mysql2"
 
 import { UserWithoutId, User } from '../types.js';
-import { connectionDB } from '../db';
+import { connectionDB } from '../db.js';
 
 export const getAllUsersService = async (): Promise<User[]> => {
     const [rows] = await connectionDB.query('SELECT * FROM user')

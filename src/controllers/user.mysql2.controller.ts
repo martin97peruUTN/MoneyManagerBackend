@@ -8,7 +8,7 @@ import {
     createUserService,
     updateUserService,
     deleteUserService
-} from '../services/user.service';
+} from '../services/user.mysql2.service';
 
 export const getAllUsers = async (_req: Request, res: Response) => {
     try {
@@ -42,7 +42,7 @@ export const getUserById = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
     try {
         const newUser: UserWithoutId = toUserWithoutId(req.body)
-        
+
         const insertId = await createUserService(newUser)
         res.status(200).json(insertId)
     } catch (error) {
