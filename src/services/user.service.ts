@@ -1,4 +1,5 @@
 import { PrismaClient, User, Account, Transfer, TransactionCategory, Transaction } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 const prisma = new PrismaClient()
 
@@ -16,11 +17,20 @@ async function getUserByIdService(id: number) {
     return user
 }
 
-async function createUserService(newUser: any): Promise<User> {
-    const user = await prisma.user.create({
-        data: newUser
+async function getUserByUsernameService(username: string) {
+    const user = await prisma.user.findUnique({
+        where: {
+            username: username
+        }
     })
     return user
+}
+
+async function createUserService(newUser: Omit<User, 'id'>): Promise<User> {
+    const createdUser = await prisma.user.create({
+        data: newUser,
+    });
+    return createdUser;
 }
 
 async function updateUserService(username: string, password: string, name: string, lastname: string, id: number) {
@@ -50,6 +60,7 @@ async function deleteUserService(id: number) {
 export {
     getAllUsersService,
     getUserByIdService,
+    getUserByUsernameService,
     createUserService,
     updateUserService,
     deleteUserService

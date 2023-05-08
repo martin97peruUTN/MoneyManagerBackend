@@ -8,7 +8,7 @@ import {
     createUserService,
     updateUserService,
     deleteUserService
-} from '../services/user.prisma.service';
+} from '../services/user.service';
 
 export const getAllUsers = async (_req: Request, res: Response) => {
     try {
@@ -43,7 +43,14 @@ export const createUser = async (req: Request, res: Response) => {
     try {
         const { username, password, name, lastname } = req.body
 
-        const newUser: any = {
+        if (username === undefined || username === "" ||
+            password === undefined || password === "" ||
+            name === undefined || name === "" ||
+            lastname === undefined || lastname === "") {
+            throw new Error("All fields are required");
+        }
+
+        const newUser: Omit<User, 'id'> = {
             username: username,
             password: password,
             name: name,
@@ -52,11 +59,15 @@ export const createUser = async (req: Request, res: Response) => {
 
         const user = await createUserService(newUser)
         res.status(200).json(user)
-    } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
+
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            return res.status(409).json({ message: `The username ${req.body.username} is already taken.` });
         }
-        return res.status(500).json({ message: "Something went wrong" });
+        if (error.message === undefined) {
+            return res.status(500).json({ message: "Something went wrong" });
+        }
+        return res.status(400).json({ message: error.message });
     }
 }
 

@@ -7,7 +7,7 @@ import {
     /*createUser2,*/
     updateUser,
     deleteUser
-} from '../controllers/user.prisma.controller';
+} from '../controllers/user.controller';
 //} from '../controllers/user.mysql2.controller';
 
 const router = Router()

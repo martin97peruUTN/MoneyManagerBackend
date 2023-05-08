@@ -9,20 +9,9 @@ import {
     homepageService
 } from '../services/login.service'
 
-const users = [
-    {
-        username: 'martin97peru',
-        password: 'test123'
-    },
-    {
-        username: 'martin97peru2',
-        password: 'test456'
-    }
-];
-
-export const jwtLogin = (req: Request, res: Response) => {
+export const jwtLogin = async (req: Request, res: Response) => {
     const { username, password } = req.body
-    const user = jwtLoginService(username)
+    const user = await jwtLoginService(username)
 
     if (!user || user.password !== password) {
         return res.status(401).json({ message: 'Invalid username or password' });

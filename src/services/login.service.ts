@@ -1,17 +1,18 @@
-const users = [
-    {
-        username: 'martin97peru',
-        password: 'test123'
-    },
-    {
-        username: 'martin97peru2',
-        password: 'test456'
-    }
-];
+// const users = [
+//     {
+//         username: 'martin97peru',
+//         password: 'test123'
+//     },
+//     {
+//         username: 'martin97peru2',
+//         password: 'test456'
+//     }
+// ];
 
-export const jwtLoginService = (username: String) => {
-    //TODO Search on DB
-    const user = users.find((user) => user.username === username)
+import { getUserByUsernameService } from './user.service'
+
+export const jwtLoginService = async (username: string) => {
+    const user = await getUserByUsernameService(username)
     return user
 }
 
