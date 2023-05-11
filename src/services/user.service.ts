@@ -1,4 +1,4 @@
-import { PrismaClient, User, Account, Transfer, TransactionCategory, Transaction } from '@prisma/client'
+import { Prisma, PrismaClient, User, Account, Transfer, TransactionCategory, Transaction } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 const prisma = new PrismaClient()
@@ -26,24 +26,19 @@ async function getUserByUsernameService(username: string) {
     return user
 }
 
-async function createUserService(newUser: Omit<User, 'id'>): Promise<User> {
+async function createUserService(newUser: Prisma.UserCreateInput): Promise<User> {
     const createdUser = await prisma.user.create({
         data: newUser,
     });
     return createdUser;
 }
 
-async function updateUserService(username: string, password: string, name: string, lastname: string, id: number) {
+async function updateUserService(userData: Prisma.UserUpdateInput, id: number) {
     const user = await prisma.user.update({
         where: {
             id: id
         },
-        data: {
-            username: username,
-            password: password,
-            name: name,
-            lastname: lastname
-        }
+        data: userData
     })
     return user
 }

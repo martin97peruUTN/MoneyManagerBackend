@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { User } from '@prisma/client'
+import { Prisma, User } from '@prisma/client'
 
 import {
     getAllUsersService,
@@ -50,7 +50,7 @@ export const createUser = async (req: Request, res: Response) => {
             throw new Error("All fields are required");
         }
 
-        const newUser: Omit<User, 'id'> = {
+        const newUser: Prisma.UserCreateInput = {
             username: username,
             password: password,
             name: name,
@@ -74,7 +74,15 @@ export const createUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
     try {
         const { username, password, name, lastname } = req.body
-        const user = await updateUserService(username, password, name, lastname, +req.params.id)
+
+        const userData: Prisma.UserUpdateInput = {
+            username: username,
+            password: password,
+            name: name,
+            lastname: lastname
+        }
+
+        const user = await updateUserService(userData, +req.params.id)
         if (user === null) {
             return res.status(404).send({
                 message: 'User not found!'
