@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import jsonwebtoken from 'jsonwebtoken';
 const { verify } = jsonwebtoken;
 
-import { User } from '../types';
+//import { User } from '../types';
+//import { User } from '@prisma/client'
 
 function authenticateToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization']
@@ -19,7 +20,7 @@ function authenticateToken(req: Request, res: Response, next: NextFunction) {
                 console.log(err.message)
                 return res.status(403).send(err.message)
             }
-            req.body.user = user as User
+            req.body.user = user
             next()
         })
     } else {

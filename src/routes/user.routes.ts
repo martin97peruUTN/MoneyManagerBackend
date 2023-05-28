@@ -3,7 +3,6 @@ import { Router } from 'express';
 import {
     getAllUsers,
     getUserById,
-    createUser,
     /*createUser2,*/
     updateUser,
     deleteUser
@@ -15,8 +14,6 @@ const router = Router()
 router.get('/user', getAllUsers)
 
 router.get('/user/:id', getUserById)
-
-router.post('/user', createUser)
 
 //router.post('/user2', createUser2)
 

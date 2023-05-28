@@ -18,8 +18,9 @@ export const jwtLogin = async (req: Request, res: Response) => {
     }
 
     if (process.env.TOKEN_SECRET) {
-        const token = sign({ username, password }, process.env.TOKEN_SECRET, { expiresIn: '6h' });
-        res.json(token)
+        const payload = { userId: user.id, username: user.username };
+        const token = sign(payload, process.env.TOKEN_SECRET, { expiresIn: '6h' });
+        res.json(token);
     } else {
         res.status(500).json({ message: 'Internal server error' });
     }

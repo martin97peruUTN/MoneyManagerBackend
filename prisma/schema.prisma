@@ -13,62 +13,81 @@ datasource db {
 
 // Define the user table
 model User {
-  id                  Int     @id @default(autoincrement())
-  username            String  @db.VarChar(50) @unique
-  password            String  @db.VarChar(255)
-  name                String  @db.VarChar(50)
-  lastname            String  @db.VarChar(50)
+  id       Int    @id @default(autoincrement())
+  username String @unique @db.VarChar(50)
+  password String @db.VarChar(255)
+  name     String @db.VarChar(50)
+  lastname String @db.VarChar(50)
 
   // Define a one-to-many relationship between User and Account
-  accounts    Account[]
+  accounts Account[]
+}
+
+model Currency {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(10)
+
+  // Define a one-to-many relationship between Currency and Account
+  Account Account[]
 }
 
 // Define the account table
 model Account {
-  id                  Int      @id @default(autoincrement())
-  balance             Float    @default(0)
-  currency            String   @db.VarChar(10)
-  userId              Int
-  user                User     @relation(fields: [userId], references: [id])
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(50)
+  balance    Float    @default(0)
+  currency   Currency @relation(fields: [currencyId], references: [id])
+  currencyId Int
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
 
   // Define a one-to-many relationship between Account and Transfer
-  originTransfers     Transfer[] @relation("originTransfers")
-  destinyTransfers    Transfer[] @relation("destinyTransfers")
+  originTransfers  Transfer[] @relation("originTransfers")
+  destinyTransfers Transfer[] @relation("destinyTransfers")
 
   // Define a one-to-many relationship between Account and Transaction
-  transactions        Transaction[]
+  transactions Transaction[]
+
+  @@index([currencyId])
+  @@index([userId])
 }
 
 // Define the transfer table
 model Transfer {
-  id                  Int      @id @default(autoincrement())
-  amount              Float    
-  comment             String?  @db.VarChar(255)
-  transferDate        DateTime @default(now())
-  originAccountId     Int
-  originAccount       Account  @relation("originTransfers", fields: [originAccountId], references: [id])
-  destinyAccountId    Int
-  destinyAccount      Account  @relation("destinyTransfers", fields: [destinyAccountId], references: [id])
+  id               Int      @id @default(autoincrement())
+  amount           Float
+  comment          String?  @db.VarChar(255)
+  date             DateTime @default(now())
+  originAccountId  Int
+  originAccount    Account  @relation("originTransfers", fields: [originAccountId], references: [id])
+  destinyAccountId Int
+  destinyAccount   Account  @relation("destinyTransfers", fields: [destinyAccountId], references: [id])
+
+  @@index([originAccountId])
+  @@index([destinyAccountId])
 }
 
 // Define the transaction_category table
 model TransactionCategory {
-  id                  Int      @id @default(autoincrement())
-  name                String   @db.VarChar(50)
-  isExpense           Boolean
+  id        Int     @id @default(autoincrement())
+  name      String  @db.VarChar(50)
+  isExpense Boolean
 
   // Define a one-to-many relationship between TransactionCategory and Transaction
-  transactions        Transaction[]
+  transactions Transaction[]
 }
 
 // Define the transaction table
 model Transaction {
-  id                      Int       @id @default(autoincrement())
-  amount                  Float
-  comment                 String?   @db.VarChar(255)
-  transferDate            DateTime
-  accountId               Int
-  account                 Account   @relation(fields: [accountId], references: [id])
-  transactionCategoryId   Int
-  transactionCategory     TransactionCategory @relation(fields: [transactionCategoryId], references: [id])
+  id                    Int                 @id @default(autoincrement())
+  amount                Float
+  comment               String?             @db.VarChar(255)
+  date                  DateTime
+  accountId             Int
+  account               Account             @relation(fields: [accountId], references: [id])
+  transactionCategoryId Int
+  transactionCategory   TransactionCategory @relation(fields: [transactionCategoryId], references: [id])
+
+  @@index([accountId])
+  @@index([transactionCategoryId])
 }
