@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, User, Account, Transfer, TransactionCategory, Transaction } from '@prisma/client'
+import { Prisma, PrismaClient, User } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 const prisma = new PrismaClient()

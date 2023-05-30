@@ -46,8 +46,7 @@ export const createAccount = async (req: Request, res: Response) => {
     try {
         const { name, balance, currencyId } = req.body
 
-        if (name === undefined || name === "" ||
-            currencyId === undefined || currencyId === "") {
+        if (name === undefined || name === "" || currencyId === undefined || currencyId === "") {
             throw new Error("A name and a currency are required");
         }
 

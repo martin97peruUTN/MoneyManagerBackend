@@ -5,8 +5,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import {
-    jwtLoginService,
-    homepageService
+    jwtLoginService
 } from '../services/login.service'
 
 export const jwtLogin = async (req: Request, res: Response) => {
@@ -24,8 +23,4 @@ export const jwtLogin = async (req: Request, res: Response) => {
     } else {
         res.status(500).json({ message: 'Internal server error' });
     }
-}
-
-export const homepage = (req: Request, res: Response) => {
-    res.send(homepageService())
 }

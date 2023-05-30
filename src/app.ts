@@ -4,10 +4,10 @@ import express, { urlencoded, json, Express, Request, Response } from 'express';
 
 import authenticateToken from './middleware/JWTAuthentication';
 import { loginRoutes } from './routes/login.routes';
-import testsRoutes from './routes/tests.routes';
 import userCreationRoute from './routes/userCreation.routes';
 import userRoutes from './routes/user.routes';
 import accountRoutes from './routes/account.routes';
+import currencyRoutes from './routes/currency.routes';
 
 //import { connectionDB } from './db.js';
 
@@ -24,11 +24,11 @@ app.use('/api', authenticateToken)
 
 //Routes
 app.use(loginRoutes)
-app.use(testsRoutes)
 //userCreationRoute is apart because it does not need authentication
 app.use(userCreationRoute)
 app.use('/api', userRoutes)
 app.use('/api', accountRoutes)
+app.use('/api', currencyRoutes)
 
 //Not found
 //TS no hace falta poner Request y Response explicitamente, son inferidos porque app es de tipo Express

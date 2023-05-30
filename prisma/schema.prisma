@@ -24,8 +24,10 @@ model User {
 }
 
 model Currency {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(10)
+  id     Int    @id @default(autoincrement())
+  name   String @db.VarChar(30)
+  symbol String @db.VarChar(5)
+  code   String @db.VarChar(5)
 
   // Define a one-to-many relationship between Currency and Account
   Account Account[]
