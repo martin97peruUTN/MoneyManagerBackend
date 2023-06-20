@@ -14,9 +14,6 @@ export const getAllCurrencies = async (req: Request, res: Response) => {
     try {
         res.status(200).json(await getAllCurrenciesService())
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -32,9 +29,6 @@ export const getCurrencyById = async (req: Request, res: Response) => {
         }
         res.status(200).json(currency)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -57,9 +51,6 @@ export const createCurrency = async (req: Request, res: Response) => {
         const currency = await createCurrencyService(newCurrency)
         res.status(201).json(currency)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -77,9 +68,6 @@ export const updateCurrency = async (req: Request, res: Response) => {
         const updatedCurrency = await updateCurrencyService(currency, +req.params.id)
         res.status(200).json(updatedCurrency)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -95,9 +83,6 @@ export const deleteCurrency = async (req: Request, res: Response) => {
         }
         res.status(200).send(currency)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }

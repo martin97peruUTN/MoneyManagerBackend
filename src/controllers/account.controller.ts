@@ -15,9 +15,6 @@ export const getAllAccounts = async (req: Request, res: Response) => {
     try {
         res.status(200).json(await getAllAccountsService(userId))
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -34,9 +31,6 @@ export const getAccountById = async (req: Request, res: Response) => {
         }
         res.status(200).json(account)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -92,9 +86,6 @@ export const updateAccount = async (req: Request, res: Response) => {
         }
         res.status(200).json(account)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -118,9 +109,6 @@ export const deleteAccount = async (req: Request, res: Response) => {
         }
         res.status(200).json(account)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }

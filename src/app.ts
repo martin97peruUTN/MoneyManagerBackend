@@ -8,6 +8,7 @@ import userCreationRoute from './routes/userCreation.routes';
 import userRoutes from './routes/user.routes';
 import accountRoutes from './routes/account.routes';
 import currencyRoutes from './routes/currency.routes';
+import transactionCategoryRoutes from './routes/transactionCategory.routes';
 
 //import { connectionDB } from './db.js';
 
@@ -29,6 +30,7 @@ app.use(userCreationRoute)
 app.use('/api', userRoutes)
 app.use('/api', accountRoutes)
 app.use('/api', currencyRoutes)
+app.use('/api', transactionCategoryRoutes)
 
 //Not found
 //TS no hace falta poner Request y Response explicitamente, son inferidos porque app es de tipo Express

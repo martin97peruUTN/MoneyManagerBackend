@@ -14,9 +14,6 @@ export const getAllUsers = async (_req: Request, res: Response) => {
     try {
         res.status(200).json(await getAllUsersService())
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -32,9 +29,6 @@ export const getUserById = async (req: Request, res: Response) => {
         }
         res.status(200).json(user)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -90,9 +84,6 @@ export const updateUser = async (req: Request, res: Response) => {
         }
         res.status(200).json(user)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
@@ -107,9 +98,6 @@ export const deleteUser = async (req: Request, res: Response) => {
         }
         res.status(200).json(user)
     } catch (error) {
-        if (error instanceof Error) {
-            return res.status(500).json({ message: error.message });
-        }
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
