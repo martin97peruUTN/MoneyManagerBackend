@@ -18,9 +18,12 @@ model User {
   password String @db.VarChar(255)
   name     String @db.VarChar(50)
   lastname String @db.VarChar(50)
+  role     String @default("User") @db.VarChar(10)
 
   // Define a one-to-many relationship between User and Account
   accounts Account[]
+
+  transactionCategories TransactionCategory[]
 }
 
 model Currency {
@@ -74,9 +77,14 @@ model TransactionCategory {
   id        Int     @id @default(autoincrement())
   name      String  @db.VarChar(50)
   isExpense Boolean
+  public    Boolean @default(false)
 
   // Define a one-to-many relationship between TransactionCategory and Transaction
   transactions Transaction[]
+  User         User?         @relation(fields: [userId], references: [id])
+  userId       Int?
+
+  @@index([userId])
 }
 
 // Define the transaction table

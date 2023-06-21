@@ -28,6 +28,9 @@ export const getTransactionCategoryById = async (req: Request, res: Response) =>
 }
 
 export const createTransactionCategory = async (req: Request, res: Response) => {
+
+    const { userId } = req.body.user
+
     try {
         const { name, isExpense } = req.body;
         if (name === undefined || name === "") {
@@ -39,7 +42,8 @@ export const createTransactionCategory = async (req: Request, res: Response) => 
 
         const newTransactionCategory: Prisma.TransactionCategoryCreateInput = {
             name,
-            isExpense
+            isExpense,
+            User: { connect: { id: userId } }
         }
 
         const tc = await createTransactionCategoryService(newTransactionCategory)
@@ -53,7 +57,35 @@ export const updateTransactionCategory = async (req: Request, res: Response) => 
     try {
         const { name, isExpense } = req.body;
         const { id } = req.params;
+        const { userId, role } = req.body.user
 
+        const transactionCategory = await getTransactionCategoryByIdService(+id)
+
+        if (transactionCategory === null) {
+            res.status(404).send({
+                message: 'Transaction category not found!'
+            })
+            return
+        }
+
+        //Only admin users can update a public transaction category
+        if (transactionCategory.public && role !== 'Admin') {
+            res.status(403).send({
+                message: 'You can not delete a public transaction category!'
+            })
+            return
+        }
+
+        //User can't update a private transaction category that is not his
+        if (transactionCategory.userId === null || transactionCategory.userId !== userId) {
+            res.status(403).send({
+                message: 'You can not delete a transaction category that is not yours!'
+            })
+            return
+        }
+
+        //User can update it if:
+        //User is admin or it's a private TransactionCategory and belongs to this user.
         const updatedTransactionCategory: Prisma.TransactionCategoryUpdateInput = {
             name,
             isExpense
@@ -69,6 +101,35 @@ export const updateTransactionCategory = async (req: Request, res: Response) => 
 export const deleteTransactionCategory = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
+        const { userId, role } = req.body.user
+
+        const transactionCategory = await getTransactionCategoryByIdService(+id)
+
+        if (transactionCategory === null) {
+            res.status(404).send({
+                message: 'Transaction category not found!'
+            })
+            return
+        }
+
+        //Only admin users can delete a public transaction category
+        if (transactionCategory.public && role !== 'Admin') {
+            res.status(403).send({
+                message: 'You can not delete a public transaction category!'
+            })
+            return
+        }
+
+        //User can't delete a private transaction category that is not his
+        if (transactionCategory.userId === null || transactionCategory.userId !== userId) {
+            res.status(403).send({
+                message: 'You can not delete a transaction category that is not yours!'
+            })
+            return
+        }
+
+        //User can delete it if:
+        //User is admin or it's a private TransactionCategory and belongs to this user.
         const tc = await deleteTransactionCategoryService(+id)
         if (tc === null) {
             res.status(404).send({

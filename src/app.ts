@@ -3,6 +3,7 @@ import express, { urlencoded, json, Express, Request, Response } from 'express';
 //Sino no traspila bien. Igualmente aca tengo que usar la notacion de import de TS
 
 import authenticateToken from './middleware/JWTAuthentication';
+import isAdmin from './middleware/AdminRoute';
 import { loginRoutes } from './routes/login.routes';
 import userCreationRoute from './routes/userCreation.routes';
 import userRoutes from './routes/user.routes';
@@ -22,6 +23,8 @@ app.use(urlencoded({ extended: false }))
 app.use(json())
 //All routes starting with /api will be protected
 app.use('/api', authenticateToken)
+//All routes starting with /api/admin will be admin only
+app.use('*/admin', isAdmin)
 
 //Routes
 app.use(loginRoutes)

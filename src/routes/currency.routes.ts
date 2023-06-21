@@ -14,10 +14,10 @@ router.get('/currencies', getAllCurrencies)
 
 router.get('/currency/:id', getCurrencyById)
 
-router.post('/currency', createCurrency)
+router.post('/admin/currency', createCurrency)
 
-router.patch('/currency/:id', updateCurrency)
+router.patch('/admin/currency/:id', updateCurrency)
 
-router.delete('/currency/:id', deleteCurrency)
+router.delete('/admin/currency/:id', deleteCurrency)
 
 export default router;
