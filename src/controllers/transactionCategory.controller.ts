@@ -11,17 +11,33 @@ import {
 } from '../services/transactionCategory.service'
 
 export const getAllTransactionCategories = async (req: Request, res: Response) => {
+
+    const { userId } = req.body.user
+
     try {
-        res.status(200).json(await getAllTransactionCategoriesService())
+        res.status(200).json(await getAllTransactionCategoriesService(userId))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
 
 export const getTransactionCategoryById = async (req: Request, res: Response) => {
+
+    const { userId } = req.body.user
+
     try {
         const { id } = req.params;
-        res.status(200).json(await getTransactionCategoryByIdService(parseInt(id)))
+
+        const tc = await getTransactionCategoryByIdService(parseInt(id))
+
+        //Can only be retrieved if it is public or owned by the user
+        if (tc === null || (!tc.public && tc.userId !== userId)) {
+            res.status(404).send({
+                message: 'Transaction category not found!'
+            })
+            return
+        }
+        res.status(200).json(tc)
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -71,7 +87,7 @@ export const updateTransactionCategory = async (req: Request, res: Response) => 
         //Only admin users can update a public transaction category
         if (transactionCategory.public && role !== 'Admin') {
             res.status(403).send({
-                message: 'You can not delete a public transaction category!'
+                message: 'You can not update a public transaction category!'
             })
             return
         }
@@ -79,7 +95,7 @@ export const updateTransactionCategory = async (req: Request, res: Response) => 
         //User can't update a private transaction category that is not his
         if (transactionCategory.userId === null || transactionCategory.userId !== userId) {
             res.status(403).send({
-                message: 'You can not delete a transaction category that is not yours!'
+                message: 'You can not update a transaction category that is not yours!'
             })
             return
         }

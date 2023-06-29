@@ -2,8 +2,21 @@ import { Prisma, PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function getAllTransactionCategoriesService() {
-    const transactionCategories = await prisma.transactionCategory.findMany()
+async function getAllTransactionCategoriesService(userId: number) {
+
+    //It retrieves user owned and public transaction categories
+    const transactionCategories = await prisma.transactionCategory.findMany({
+        where: {
+            OR: [
+                {
+                    userId: userId
+                },
+                {
+                    public: true
+                }
+            ]
+        }
+    })
     return transactionCategories
 }
 
