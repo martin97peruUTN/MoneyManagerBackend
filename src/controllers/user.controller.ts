@@ -67,6 +67,14 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
     try {
+        const { userId, role } = req.body.user
+
+        if (userId !== +req.params.id && role !== 'Admin') {
+            return res.status(401).send({
+                message: 'Unauthorized!'
+            })
+        }
+
         const { username, password, name, lastname } = req.body
 
         const userData: Prisma.UserUpdateInput = {
@@ -90,6 +98,14 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
     try {
+        const { userId, role } = req.body.user
+
+        if (userId !== +req.params.id && role !== 'Admin') {
+            return res.status(401).send({
+                message: 'Unauthorized!'
+            })
+        }
+
         const user = await deleteUserService(+req.params.id)
         if (user === null) {
             return res.status(404).send({

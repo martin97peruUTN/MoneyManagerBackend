@@ -11,9 +11,9 @@ import {
 
 const router = Router()
 
-router.get('/user', getAllUsers)
+router.get('/admin/user', getAllUsers)
 
-router.get('/user/:id', getUserById)
+router.get('/admin/user/:id', getUserById)
 
 //router.post('/user2', createUser2)
 

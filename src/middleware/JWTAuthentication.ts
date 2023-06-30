@@ -17,7 +17,6 @@ function authenticateToken(req: Request, res: Response, next: NextFunction) {
         verify(token, process.env.TOKEN_SECRET, (err, user) => {
 
             if (err) {
-                //console.log(err.message)
                 return res.status(403).send(err.message)
             }
             req.body.user = user
