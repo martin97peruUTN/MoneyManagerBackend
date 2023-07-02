@@ -1,3 +1,4 @@
+//TODO Delete this file
 import { UserWithoutId } from "../types";
 
 const isString = (text: any): boolean => {

@@ -52,7 +52,7 @@ export const createAccount = async (req: Request, res: Response) => {
         }
 
         const account = await createAccountService(newAccount)
-        res.status(200).json(account)
+        res.status(201).json(account)
 
     } catch (error: any) {
         return res.status(400).json({ message: error.message });
@@ -73,9 +73,12 @@ export const updateAccount = async (req: Request, res: Response) => {
         }
 
         const accountData: Prisma.AccountUpdateInput = {
-            currency: currencyId ? { connect: { id: currencyId } } : undefined,
             name: name,
             balance: balance
+        }
+
+        if (currencyId !== null && currencyId !== undefined) {
+            accountData.currency = { connect: { id: currencyId } }
         }
 
         const account = await updateAccountService(accountData, +req.params.id)
