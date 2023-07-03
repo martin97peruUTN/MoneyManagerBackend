@@ -230,34 +230,100 @@ export const updateTransfer = async (req: Request, res: Response) => {
         const transferId = +req.params.id
         const { originAccountId, destinyAccountId, amount, comment, date } = req.body
 
-        if (originAccountId === destinyAccountId) {
+        if (originAccountId !== null && originAccountId !== undefined && destinyAccountId !== null && destinyAccountId !== undefined && originAccountId === destinyAccountId) {
             res.status(400).send({
                 message: 'You must provide different origin and destiny accounts!'
             })
         }
 
-        //TODO hacer algo parecido con las accounts a lo que hice al crear
+        const currentTransfer = await getTransferByIdService(transferId)
 
-        const transfer = await getTransferByIdService(transferId)
-
-        if (!transfer) {
+        if (!currentTransfer) {
             res.status(404).send({
                 message: 'Transfer not found!'
             })
             return
         }
 
-        if (transfer.originAccountId === null || transfer.originAccountId === undefined || transfer.destinyAccountId === null || transfer.destinyAccountId === undefined) {
+        //It should not enter here, but just in case
+        if (currentTransfer.originAccountId === null || currentTransfer.originAccountId === undefined || currentTransfer.destinyAccountId === null || currentTransfer.destinyAccountId === undefined) {
             res.status(404).send({
                 message: 'There is a problem with this transfer!'
             })
         }
-        if (transfer.originAccount.userId !== userId && transfer.destinyAccount.userId !== userId) {
+
+        if (currentTransfer.originAccount.userId !== userId || currentTransfer.destinyAccount.userId !== userId) {
             res.status(403).send({
                 message: 'You are not authorized to access this transfer!'
             })
             return
         }
+
+        const currentOriginAccount = await getAccountByIdService(currentTransfer.originAccountId)
+        const currentDestinyAccount = await getAccountByIdService(currentTransfer.destinyAccountId)
+
+        const newOriginAccount = await getAccountByIdService(originAccountId)
+        const newDestinyAccount = await getAccountByIdService(destinyAccountId)
+
+        if (!currentOriginAccount) {
+            res.status(404).send({
+                message: 'Current origin account not found!'
+            })
+            return
+        }
+        if (!currentDestinyAccount) {
+            res.status(404).send({
+                message: 'Current destiny account not found!'
+            })
+            return
+        }
+        if (!newOriginAccount) {
+            res.status(404).send({
+                message: 'New origin account not found!'
+            })
+            return
+        }
+        if (!newDestinyAccount) {
+            res.status(404).send({
+                message: 'New destiny account not found!'
+            })
+            return
+        }
+
+        const updateCurrentOriginAccountObject: Prisma.AccountUpdateInput = {}
+
+        const updateCurrentDestinyAccountObject: Prisma.AccountUpdateInput = {}
+
+        const updateNewOriginAccountObject: Prisma.AccountUpdateInput = {}
+
+        const updateNewDestinyAccountObject: Prisma.AccountUpdateInput = {}
+
+        //Rollback
+        updateCurrentOriginAccountObject.balance = currentOriginAccount.balance + currentTransfer.amount
+        updateCurrentDestinyAccountObject.balance = currentDestinyAccount.balance - currentTransfer.amount
+
+        await updateAccountService(updateCurrentOriginAccountObject, currentOriginAccount.id)
+        await updateAccountService(updateCurrentDestinyAccountObject, currentDestinyAccount.id)
+
+        //TODO optimize this
+        //AFTER THE ROLLBACK I get the new accounts AGAIN and update them
+        const newOriginAccountUPDATED = await getAccountByIdService(originAccountId)
+        const newDestinyAccountUPDATED = await getAccountByIdService(destinyAccountId)
+
+        //It should not enter here because I just verified that the accounts exist before with newOriginAccount and newDestinyAccount
+        if (newOriginAccountUPDATED === null || newOriginAccountUPDATED === undefined || newDestinyAccountUPDATED === null || newDestinyAccountUPDATED === undefined) {
+            res.status(404).send({
+                message: 'There is a problem with the new accounts!'
+            })
+            return
+        }
+
+        //Update
+        updateNewOriginAccountObject.balance = newOriginAccountUPDATED.balance - amount
+        updateNewDestinyAccountObject.balance = newDestinyAccountUPDATED.balance + amount
+
+        updateAccountService(updateNewOriginAccountObject, newOriginAccount.id)
+        updateAccountService(updateNewDestinyAccountObject, newDestinyAccount.id)
 
         const updateTransfer: Prisma.TransferUpdateInput = {
             originAccount: { connect: { id: originAccountId } },
@@ -266,14 +332,6 @@ export const updateTransfer = async (req: Request, res: Response) => {
             comment,
             date
         }
-
-        //If there is an originAccountId and/or an destinyAccountId, update it
-        // if (originAccountId !== null && originAccountId !== undefined) {
-        //     updateTransfer.originAccount = { connect: { id: originAccountId } }
-        // }
-        // if (destinyAccountId !== null && destinyAccountId !== undefined) {
-        //     updateTransfer.destinyAccount = { connect: { id: destinyAccountId } }
-        // }
 
         res.status(200).json(await updateTransferService(updateTransfer, transferId))
     } catch (error) {
