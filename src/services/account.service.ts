@@ -1,5 +1,4 @@
 import { Prisma, PrismaClient, Account } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 const prisma = new PrismaClient()
 
@@ -17,6 +16,31 @@ async function getAccountByIdService(accountId: number) {
         }
     })
     return account
+}
+
+async function getMultipleAccountByIdsService(accountIds: number[]) {
+    //IMPORTANT: Returns and array of the same length as the input array
+
+    const uniqueAccountIds = [...new Set(accountIds)]; // Remove duplicate accountIds
+
+    const accounts = await prisma.account.findMany({
+        where: {
+            id: {
+                in: uniqueAccountIds
+            }
+        }
+    });
+
+    // Create a map of accountId to its corresponding account object
+    const accountMap = new Map<number, Account>();
+    accounts.forEach((account) => {
+        accountMap.set(account.id, account);
+    });
+
+    // Create the result array with repeated accounts based on the original accountIds array
+    const result = accountIds.map((accountId) => accountMap.get(accountId));
+
+    return result;
 }
 
 async function createAccountService(newAccount: Prisma.AccountCreateInput): Promise<Account> {
@@ -48,6 +72,7 @@ async function deleteAccountService(id: number) {
 export {
     getAllAccountsService,
     getAccountByIdService,
+    getMultipleAccountByIdsService,
     createAccountService,
     updateAccountService,
     deleteAccountService

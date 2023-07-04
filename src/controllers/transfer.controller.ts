@@ -17,6 +17,7 @@ import {
 
 import {
     getAccountByIdService,
+    getMultipleAccountByIdsService,
     updateAccountService
 } from '../services/account.service';
 
@@ -225,6 +226,7 @@ export const createTransfer = async (req: Request, res: Response) => {
 
 //Update
 export const updateTransfer = async (req: Request, res: Response) => {
+    //TODO Optimize, it makes 7 queries to the database
     const { userId } = req.body.user
     try {
         const transferId = +req.params.id
@@ -259,11 +261,16 @@ export const updateTransfer = async (req: Request, res: Response) => {
             return
         }
 
-        const currentOriginAccount = await getAccountByIdService(currentTransfer.originAccountId)
-        const currentDestinyAccount = await getAccountByIdService(currentTransfer.destinyAccountId)
+        //Now i get all the accounts involved
+        const accountIdsArray = [currentTransfer.originAccountId, currentTransfer.destinyAccountId, originAccountId, destinyAccountId]
 
-        const newOriginAccount = await getAccountByIdService(originAccountId)
-        const newDestinyAccount = await getAccountByIdService(destinyAccountId)
+        const accounts = await getMultipleAccountByIdsService(accountIdsArray)
+
+        const currentOriginAccount = accounts[0]
+        const currentDestinyAccount = accounts[1]
+
+        const newOriginAccount = accounts[2]
+        const newDestinyAccount = accounts[3]
 
         if (!currentOriginAccount) {
             res.status(404).send({
@@ -290,40 +297,51 @@ export const updateTransfer = async (req: Request, res: Response) => {
             return
         }
 
-        const updateCurrentOriginAccountObject: Prisma.AccountUpdateInput = {}
+        const updateCurrentOriginAccountObject: Prisma.AccountUpdateInput = {
+            balance: currentOriginAccount.balance + currentTransfer.amount
+        }
 
-        const updateCurrentDestinyAccountObject: Prisma.AccountUpdateInput = {}
+        const updateCurrentDestinyAccountObject: Prisma.AccountUpdateInput = {
+            balance: currentDestinyAccount.balance - currentTransfer.amount
+        }
 
-        const updateNewOriginAccountObject: Prisma.AccountUpdateInput = {}
-
-        const updateNewDestinyAccountObject: Prisma.AccountUpdateInput = {}
-
-        //Rollback
-        updateCurrentOriginAccountObject.balance = currentOriginAccount.balance + currentTransfer.amount
-        updateCurrentDestinyAccountObject.balance = currentDestinyAccount.balance - currentTransfer.amount
+        //Rollback of the current accounts
 
         await updateAccountService(updateCurrentOriginAccountObject, currentOriginAccount.id)
         await updateAccountService(updateCurrentDestinyAccountObject, currentDestinyAccount.id)
 
-        //TODO optimize this
         //AFTER THE ROLLBACK I get the new accounts AGAIN and update them
-        const newOriginAccountUPDATED = await getAccountByIdService(originAccountId)
-        const newDestinyAccountUPDATED = await getAccountByIdService(destinyAccountId)
+        //I do this because if one of the accounts is the same as the current one, the rollback will change the balance
+
+        const accountIdsArrayUPDATED = [originAccountId, destinyAccountId]
+
+        const accountsUPDATED = await getMultipleAccountByIdsService(accountIdsArrayUPDATED)
+
+        const newOriginAccountUPDATED = accountsUPDATED[0]
+        const newDestinyAccountUPDATED = accountsUPDATED[1]
 
         //It should not enter here because I just verified that the accounts exist before with newOriginAccount and newDestinyAccount
-        if (newOriginAccountUPDATED === null || newOriginAccountUPDATED === undefined || newDestinyAccountUPDATED === null || newDestinyAccountUPDATED === undefined) {
+        if (!newOriginAccountUPDATED || !newDestinyAccountUPDATED) {
             res.status(404).send({
                 message: 'There is a problem with the new accounts!'
             })
             return
         }
 
+        const updateNewOriginAccountObject: Prisma.AccountUpdateInput = {
+            balance: newOriginAccountUPDATED.balance - amount
+        }
+
+        const updateNewDestinyAccountObject: Prisma.AccountUpdateInput = {
+            balance: newDestinyAccountUPDATED.balance + amount
+        }
+
         //Update
-        updateNewOriginAccountObject.balance = newOriginAccountUPDATED.balance - amount
-        updateNewDestinyAccountObject.balance = newDestinyAccountUPDATED.balance + amount
 
         updateAccountService(updateNewOriginAccountObject, newOriginAccount.id)
         updateAccountService(updateNewDestinyAccountObject, newDestinyAccount.id)
+
+        //Update of the transfer
 
         const updateTransfer: Prisma.TransferUpdateInput = {
             originAccount: { connect: { id: originAccountId } },
