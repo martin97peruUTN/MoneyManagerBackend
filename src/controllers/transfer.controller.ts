@@ -354,18 +354,40 @@ export const deleteTransfer = async (req: Request, res: Response) => {
             return
         }
 
-        // if (transfer.originAccountId === null || transfer.originAccountId === undefined || transfer.destinyAccountId === null || transfer.destinyAccountId === undefined) {
-        //     res.status(404).send({
-        //         message: 'There is a problem with this transfer!'
-        //     })
-        // }
-
         if (transfer.originAccount.userId !== userId && transfer.destinyAccount.userId !== userId) {
             res.status(403).send({
                 message: 'You are not authorized to access this transfer!'
             })
             return
         }
+
+        const originAccount = await getAccountByIdService(transfer.originAccountId)
+        const destinyAccount = await getAccountByIdService(transfer.destinyAccountId)
+
+        if (!originAccount) {
+            res.status(404).send({
+                message: 'Origin account not found!'
+            })
+            return
+        }
+
+        if (!destinyAccount) {
+            res.status(404).send({
+                message: 'Destiny account not found!'
+            })
+            return
+        }
+
+        const updateOriginAccountObject: Prisma.AccountUpdateInput = {
+            balance: originAccount.balance + transfer.amount
+        }
+
+        const updateDestinyAccountObject: Prisma.AccountUpdateInput = {
+            balance: destinyAccount.balance - transfer.amount
+        }
+
+        await updateAccountService(updateOriginAccountObject, originAccount.id)
+        await updateAccountService(updateDestinyAccountObject, destinyAccount.id)
 
         res.status(200).json(await deleteTransferService(transferId))
     } catch (error) {
