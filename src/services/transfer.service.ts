@@ -109,30 +109,137 @@ async function getTransferByIdService(transferId: number) {
     return transfer
 }
 
-async function createTransferService(newTransfer: Prisma.TransferCreateInput): Promise<Transfer> {
-    const createdTransfer = await prisma.transfer.create({
-        data: newTransfer,
-    });
-    return createdTransfer;
+async function createTransferService(originAccountId: number, destinyAccountId: number, amount: number, comment: string, date: string) {
+    const resultArray = await prisma.$transaction([
+        prisma.account.update({
+            where: {
+                id: originAccountId
+            },
+            data: {
+                balance: {
+                    decrement: amount
+                }
+            }
+        }),
+        prisma.account.update({
+            where: {
+                id: destinyAccountId
+            },
+            data: {
+                balance: {
+                    increment: amount
+                }
+            }
+        }),
+        prisma.transfer.create({
+            data: {
+                originAccount: {
+                    connect: {
+                        id: originAccountId
+                    }
+                },
+                destinyAccount: {
+                    connect: {
+                        id: destinyAccountId
+                    }
+                },
+                amount: amount,
+                comment: comment,
+                date: date
+            }
+        })
+    ])
+    return resultArray
 }
 
-async function updateTransferService(transferData: Prisma.TransferUpdateInput, id: number) {
-    const transfer = await prisma.transfer.update({
-        where: {
-            id: id
-        },
-        data: transferData
-    })
-    return transfer
+async function updateTransferService(currentOriginAccountId: number, currentDestinationAccountId: number, newOriginAccountId: number, newDestinationAccountId: number, transferId: number, currentAmount: number, newAmount: number, comment: string, date: string) {
+    //I use a transaction, so if one of the updates fails, the others will be rolled back
+    const resultArray = await prisma.$transaction([
+        prisma.account.update({
+            where: {
+                id: currentOriginAccountId
+            },
+            data: {
+                balance: {
+                    increment: currentAmount
+                }
+            }
+        }),
+        prisma.account.update({
+            where: {
+                id: currentDestinationAccountId
+            },
+            data: {
+                balance: {
+                    decrement: currentAmount
+                }
+            }
+        }),
+        prisma.account.update({
+            where: {
+                id: newOriginAccountId
+            },
+            data: {
+                balance: {
+                    decrement: newAmount
+                }
+            }
+        }),
+        prisma.account.update({
+            where: {
+                id: newDestinationAccountId
+            },
+            data: {
+                balance: {
+                    increment: newAmount
+                }
+            }
+        }),
+        prisma.transfer.update({
+            where: {
+                id: transferId
+            },
+            data: {
+                originAccount: { connect: { id: newOriginAccountId } },
+                destinyAccount: { connect: { id: newDestinationAccountId } },
+                amount: newAmount,
+                comment: comment,
+                date: date
+            }
+        })
+    ])
+    return resultArray
 }
 
-async function deleteTransferService(id: number) {
-    const transfer = await prisma.transfer.delete({
-        where: {
-            id: id
-        }
-    })
-    return transfer
+async function deleteTransferService(id: number, originAccountId: number, destinyAccountId: number, amount: number) {
+    const resultArray = await prisma.$transaction([
+        prisma.account.update({
+            where: {
+                id: originAccountId
+            },
+            data: {
+                balance: {
+                    increment: amount
+                }
+            }
+        }),
+        prisma.account.update({
+            where: {
+                id: destinyAccountId
+            },
+            data: {
+                balance: {
+                    decrement: amount
+                }
+            }
+        }),
+        prisma.transfer.delete({
+            where: {
+                id: id
+            }
+        })
+    ])
+    return resultArray
 }
 
 export {
