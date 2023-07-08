@@ -16,9 +16,7 @@ import {
 } from '../services/transfer.service';
 
 import {
-    getAccountByIdService,
-    getMultipleAccountByIdsService,
-    updateAccountService
+    getMultipleAccountByIdsService
 } from '../services/account.service';
 
 //By userId only
@@ -55,6 +53,7 @@ export const getAllDestinyTransfersByUser = async (req: Request, res: Response) 
 export const getAllTransfersByAccountId = async (req: Request, res: Response) => {
     const { userId } = req.body.user
     try {
+        //I don't check if the accounts belong to the user because the service method already does it
         const accountId = +req.params.id
         res.status(200).json(await getAllTransfersByAccountIdService(userId, accountId))
     } catch (error) {
@@ -65,6 +64,7 @@ export const getAllTransfersByAccountId = async (req: Request, res: Response) =>
 export const getAllOriginTransfersByAccountId = async (req: Request, res: Response) => {
     const { userId } = req.body.user
     try {
+        //I don't check if the accounts belong to the user because the service method already does it
         const accountId = +req.params.id
         res.status(200).json(await getAllOriginTransfersByAccountIdService(userId, accountId))
     } catch (error) {
@@ -75,6 +75,7 @@ export const getAllOriginTransfersByAccountId = async (req: Request, res: Respon
 export const getAllDestinyTransfersByAccountId = async (req: Request, res: Response) => {
     const { userId } = req.body.user
     try {
+        //I don't check if the accounts belong to the user because the service method already does it
         const accountId = +req.params.id
         res.status(200).json(await getAllDestinyTransfersByAccountIdService(userId, accountId))
     } catch (error) {
@@ -97,13 +98,12 @@ export const getTransferById = async (req: Request, res: Response) => {
             return
         }
 
-        if (transfer.originAccountId === null || transfer.originAccountId === undefined || transfer.destinyAccountId === null || transfer.destinyAccountId === undefined) {
-            res.status(404).send({
-                message: 'There is a problem with this transfer!'
-            })
-        }
+        //If one is undefined or null, it means that that account was deleted, but anyways I have to let the flow continue
+        //But if the account exists, I have to check if the user is the owner
+        const originUserIdCondition = transfer.originAccount !== undefined && transfer.originAccount !== null && transfer.originAccount.userId !== userId
+        const destinyUserIdCondition = transfer.destinyAccount !== undefined && transfer.destinyAccount !== null && transfer.destinyAccount.userId !== userId
 
-        if (transfer.originAccount.userId !== userId && transfer.destinyAccount.userId !== userId) {
+        if (originUserIdCondition || destinyUserIdCondition) {
             res.status(403).send({
                 message: 'You are not authorized to access this transfer!'
             })
@@ -195,7 +195,14 @@ export const updateTransfer = async (req: Request, res: Response) => {
         const transferId = +req.params.id
         const { originAccountId, destinyAccountId, amount, comment, date } = req.body
 
-        if (originAccountId !== null && originAccountId !== undefined && destinyAccountId !== null && destinyAccountId !== undefined && originAccountId === destinyAccountId) {
+        if (originAccountId === undefined || originAccountId === null || destinyAccountId === undefined || destinyAccountId === null) {
+            res.status(400).send({
+                message: 'You must provide an origin and a destiny account!'
+            })
+            return
+        }
+
+        if (originAccountId === destinyAccountId) {
             res.status(400).send({
                 message: 'You must provide different origin and destiny accounts!'
             })
@@ -210,14 +217,12 @@ export const updateTransfer = async (req: Request, res: Response) => {
             return
         }
 
-        //It should not enter here, but just in case
-        if (currentTransfer.originAccountId === null || currentTransfer.originAccountId === undefined || currentTransfer.destinyAccountId === null || currentTransfer.destinyAccountId === undefined) {
-            res.status(404).send({
-                message: 'There is a problem with this transfer!'
-            })
-        }
+        //If one is undefined or null, it means that that account was deleted, but anyways I have to let the flow continue
+        //But if the account exists, I have to check if the user is the owner
+        const originUserIdCondition = currentTransfer.originAccount !== undefined && currentTransfer.originAccount !== null && currentTransfer.originAccount.userId !== userId
+        const destinyUserIdCondition = currentTransfer.destinyAccount !== undefined && currentTransfer.destinyAccount !== null && currentTransfer.destinyAccount.userId !== userId
 
-        if (currentTransfer.originAccount.userId !== userId || currentTransfer.destinyAccount.userId !== userId) {
+        if (originUserIdCondition || destinyUserIdCondition) {
             res.status(403).send({
                 message: 'You are not authorized to access this transfer!'
             })
@@ -263,25 +268,14 @@ export const deleteTransfer = async (req: Request, res: Response) => {
             return
         }
 
-        if (transfer.originAccount.userId !== userId || transfer.destinyAccount.userId !== userId) {
+        //If one is undefined or null, it means that that account was deleted, but anyways I have to let the flow continue
+        //But if the account exists, I have to check if the user is the owner
+        const originUserIdCondition = transfer.originAccount !== undefined && transfer.originAccount !== null && transfer.originAccount.userId !== userId
+        const destinyUserIdCondition = transfer.destinyAccount !== undefined && transfer.destinyAccount !== null && transfer.destinyAccount.userId !== userId
+
+        if (originUserIdCondition || destinyUserIdCondition) {
             res.status(403).send({
                 message: 'You are not authorized to access this transfer!'
-            })
-            return
-        }
-
-        const accountsArray = await getMultipleAccountByIdsService([transfer.originAccountId, transfer.destinyAccountId])
-
-        if (accountsArray[0] === undefined || accountsArray[0] === null || accountsArray[1] === undefined || accountsArray[1] === null) {
-            res.status(404).send({
-                message: 'One or both accounts not found!'
-            })
-            return
-        }
-
-        if (accountsArray[0].userId !== userId || accountsArray[1].userId !== userId) {
-            res.status(403).send({
-                message: 'You are not authorized to access one or both accounts!'
             })
             return
         }

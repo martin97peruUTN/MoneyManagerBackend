@@ -63,10 +63,10 @@ model Transfer {
   amount           Float
   comment          String?  @db.VarChar(255)
   date             DateTime @default(now())
-  originAccountId  Int
-  originAccount    Account  @relation("originTransfers", fields: [originAccountId], references: [id])
-  destinyAccountId Int
-  destinyAccount   Account  @relation("destinyTransfers", fields: [destinyAccountId], references: [id])
+  originAccountId  Int?
+  originAccount    Account? @relation("originTransfers", fields: [originAccountId], references: [id])
+  destinyAccountId Int?
+  destinyAccount   Account? @relation("destinyTransfers", fields: [destinyAccountId], references: [id])
 
   @@index([originAccountId])
   @@index([destinyAccountId])
@@ -89,14 +89,14 @@ model TransactionCategory {
 
 // Define the transaction table
 model Transaction {
-  id                    Int                 @id @default(autoincrement())
+  id                    Int                  @id @default(autoincrement())
   amount                Float
-  comment               String?             @db.VarChar(255)
+  comment               String?              @db.VarChar(255)
   date                  DateTime
-  accountId             Int
-  account               Account             @relation(fields: [accountId], references: [id])
-  transactionCategoryId Int
-  transactionCategory   TransactionCategory @relation(fields: [transactionCategoryId], references: [id])
+  accountId             Int?
+  account               Account?             @relation(fields: [accountId], references: [id])
+  transactionCategoryId Int?
+  transactionCategory   TransactionCategory? @relation(fields: [transactionCategoryId], references: [id])
 
   @@index([accountId])
   @@index([transactionCategoryId])

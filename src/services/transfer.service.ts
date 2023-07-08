@@ -5,14 +5,18 @@ const prisma = new PrismaClient()
 async function getAllTransfersByUserService(userId: number) {
     const transfers = await prisma.transfer.findMany({
         where: {
-            OR: {
-                originAccount: {
-                    userId: userId
+            OR: [
+                {
+                    originAccount: {
+                        userId: userId
+                    }
                 },
-                destinyAccount: {
-                    userId: userId
+                {
+                    destinyAccount: {
+                        userId: userId
+                    }
                 }
-            }
+            ]
         }
     });
     return transfers
@@ -152,30 +156,38 @@ async function createTransferService(originAccountId: number, destinyAccountId: 
     return resultArray
 }
 
-async function updateTransferService(currentOriginAccountId: number, currentDestinationAccountId: number, newOriginAccountId: number, newDestinationAccountId: number, transferId: number, currentAmount: number, newAmount: number, comment: string, date: string) {
-    //I use a transaction, so if one of the updates fails, the others will be rolled back
-    const resultArray = await prisma.$transaction([
-        prisma.account.update({
-            where: {
-                id: currentOriginAccountId
-            },
-            data: {
-                balance: {
-                    increment: currentAmount
+async function updateTransferService(currentOriginAccountId: number | null, currentDestinationAccountId: number | null, newOriginAccountId: number, newDestinationAccountId: number, transferId: number, currentAmount: number, newAmount: number, comment: string, date: string) {
+    return await prisma.$transaction(async (tx) => {
+        let arrayResult = []
+        //if there is an origin account, update it
+        if (currentOriginAccountId !== undefined && currentOriginAccountId !== null && currentAmount !== undefined && currentAmount !== null) {
+            arrayResult[0] = await tx.account.update({
+                where: {
+                    id: currentOriginAccountId
+                },
+                data: {
+                    balance: {
+                        increment: currentAmount
+                    }
                 }
-            }
-        }),
-        prisma.account.update({
-            where: {
-                id: currentDestinationAccountId
-            },
-            data: {
-                balance: {
-                    decrement: currentAmount
+            })
+        }
+        //if there is a destination account, update it
+        if (currentDestinationAccountId !== undefined && currentDestinationAccountId !== null && currentAmount !== undefined && currentAmount !== null) {
+            arrayResult[1] = await tx.account.update({
+                where: {
+                    id: currentDestinationAccountId
+                },
+                data: {
+                    balance: {
+                        decrement: currentAmount
+                    }
                 }
-            }
-        }),
-        prisma.account.update({
+            })
+        }
+
+        //I'm sure that there is a new origin and a new destination account, so I update them
+        arrayResult[2] = await tx.account.update({
             where: {
                 id: newOriginAccountId
             },
@@ -184,8 +196,9 @@ async function updateTransferService(currentOriginAccountId: number, currentDest
                     decrement: newAmount
                 }
             }
-        }),
-        prisma.account.update({
+        })
+
+        arrayResult[3] = await tx.account.update({
             where: {
                 id: newDestinationAccountId
             },
@@ -194,8 +207,9 @@ async function updateTransferService(currentOriginAccountId: number, currentDest
                     increment: newAmount
                 }
             }
-        }),
-        prisma.transfer.update({
+        })
+
+        arrayResult[4] = await tx.transfer.update({
             where: {
                 id: transferId
             },
@@ -207,39 +221,49 @@ async function updateTransferService(currentOriginAccountId: number, currentDest
                 date: date
             }
         })
-    ])
-    return resultArray
+
+        return arrayResult
+    })
 }
 
-async function deleteTransferService(id: number, originAccountId: number, destinyAccountId: number, amount: number) {
-    const resultArray = await prisma.$transaction([
-        prisma.account.update({
-            where: {
-                id: originAccountId
-            },
-            data: {
-                balance: {
-                    increment: amount
+async function deleteTransferService(id: number, originAccountId: number | null, destinyAccountId: number | null, amount: number) {
+    return await prisma.$transaction(async (tx) => {
+        let arrayResult = []
+        //if there is an origin account, update it
+        if (originAccountId !== undefined && originAccountId !== null && amount !== undefined && amount !== null) {
+            arrayResult[0] = await tx.account.update({
+                where: {
+                    id: originAccountId
+                },
+                data: {
+                    balance: {
+                        increment: amount
+                    }
                 }
-            }
-        }),
-        prisma.account.update({
-            where: {
-                id: destinyAccountId
-            },
-            data: {
-                balance: {
-                    decrement: amount
+            })
+        }
+        //if there is a destination account, update it
+        if (destinyAccountId !== undefined && destinyAccountId !== null && amount !== undefined && amount !== null) {
+            arrayResult[1] = await tx.account.update({
+                where: {
+                    id: destinyAccountId
+                },
+                data: {
+                    balance: {
+                        decrement: amount
+                    }
                 }
-            }
-        }),
-        prisma.transfer.delete({
+            })
+        }
+
+        arrayResult[2] = await tx.transfer.delete({
             where: {
                 id: id
             }
         })
-    ])
-    return resultArray
+
+        return arrayResult
+    })
 }
 
 export {
