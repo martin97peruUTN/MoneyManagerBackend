@@ -130,7 +130,7 @@ export const getTransferById = async (req: Request, res: Response) => {
 export const createTransfer = async (req: Request, res: Response) => {
     const { userId } = req.body.user
     try {
-        const { originAccountId, destinyAccountId, amount, comment, date } = req.body
+        const { originAccountId, destinyAccountId, amount, destinyAmount, comment, date } = req.body
 
         if (originAccountId === undefined || originAccountId === null || destinyAccountId === undefined || destinyAccountId === null) {
             res.status(400).send({
@@ -142,13 +142,6 @@ export const createTransfer = async (req: Request, res: Response) => {
         if (originAccountId === destinyAccountId) {
             res.status(400).send({
                 message: 'You must provide different origin and destiny accounts!'
-            })
-            return
-        }
-
-        if (amount === undefined || amount === null || amount <= 0) {
-            res.status(400).send({
-                message: 'You must provide a valid amount!'
             })
             return
         }
@@ -169,18 +162,28 @@ export const createTransfer = async (req: Request, res: Response) => {
             return
         }
 
-        //TODO generalizar para cualquier tipo de moneda, algo como un conversion rate o que vengan 2 valores de amount
-        //TODO lo mismo para el update
-        if (accountsArray[0].currencyId !== accountsArray[1].currencyId) {
+        if (amount === undefined || amount === null || amount <= 0) {
             res.status(400).send({
-                message: 'You must provide origin and destiny accounts with the same currency!'
+                message: 'You must provide a valid amount!'
+            })
+            return
+        }
+
+        //destinyAmount may be undefined or null, but it's not a problem
+        //If that's the case, then it means that both accounts are in the same currency. So I have to check if the amount is valid
+        if (accountsArray[0].currencyId !== accountsArray[1].currencyId && (destinyAmount === undefined || destinyAmount === null || destinyAmount <= 0)) {
+            res.status(400).send({
+                message: 'You must provide a valid destiny amount! (because the accounts are in different currencies)'
             })
             return
         }
 
         const transferDate = date ?? new Date()
 
-        const arrayResult = await createTransferService(originAccountId, destinyAccountId, amount, comment, transferDate)
+        //If the accounts are in different currencies, then I have to use the destinyAmount, otherwise I have to use the amount
+        const destinyAmountToUse: number = accountsArray[0].currencyId !== accountsArray[1].currencyId ? destinyAmount : amount
+
+        const arrayResult = await createTransferService(originAccountId, destinyAccountId, amount, destinyAmountToUse, comment, transferDate)
 
         res.status(201).json(arrayResult)
     } catch (error) {
@@ -193,7 +196,7 @@ export const updateTransfer = async (req: Request, res: Response) => {
     const { userId } = req.body.user
     try {
         const transferId = +req.params.id
-        const { originAccountId, destinyAccountId, amount, comment, date } = req.body
+        const { originAccountId, destinyAccountId, amount, destinyAmount, comment, date } = req.body
 
         if (originAccountId === undefined || originAccountId === null || destinyAccountId === undefined || destinyAccountId === null) {
             res.status(400).send({
@@ -245,7 +248,34 @@ export const updateTransfer = async (req: Request, res: Response) => {
             return
         }
 
-        const resultArray = await updateTransferService(currentTransfer.originAccountId, currentTransfer.destinyAccountId, originAccountId, destinyAccountId, transferId, currentTransfer.amount, amount, comment, date)
+        //if some of the amounts are null or undefined, then I just doesn't update them
+        //if some of the newAmounts are null or undefined, then I sent the old ones for update
+
+        //Anyways, if the amount is not undefined or null, it must be greater than 0
+        if (amount !== undefined && amount !== null && amount <= 0) {
+            res.status(400).send({
+                message: 'You must provide a valid amount!'
+            })
+            return
+        }
+
+        //destinyAmount may be undefined or null, but it's not a problem
+        //If that's the case, then it means that both accounts are in the same currency.
+
+        //if it is not undefined or null, destinyAmount must be greater than 0
+        if (destinyAmount !== undefined && destinyAmount !== null && destinyAmount <= 0) {
+            res.status(400).send({
+                message: 'You must provide a valid destiny amount! (because the accounts are in different currencies)'
+            })
+            return
+        }
+
+        const newAmountToUse: number = amount ?? currentTransfer.amount
+
+        //If they are of the same currency, I use the same amount, otherwise I use the destinyAmount if it is not null or undefined, otherwise I use the old destinyAmount
+        const newDestinyAmountToUse: number = newAccountsArray[0].currencyId === newAccountsArray[1].currencyId ? newAmountToUse : (destinyAmount ?? currentTransfer.destinyAmount)
+
+        const resultArray = await updateTransferService(currentTransfer.originAccountId, currentTransfer.destinyAccountId, originAccountId, destinyAccountId, transferId, currentTransfer.amount, currentTransfer.destinyAmount, newAmountToUse, newDestinyAmountToUse, comment, date)
 
         res.status(200).json(resultArray)
     } catch (error) {
@@ -280,7 +310,7 @@ export const deleteTransfer = async (req: Request, res: Response) => {
             return
         }
 
-        const arrayResult = await deleteTransferService(transferId, transfer.originAccountId, transfer.destinyAccountId, transfer.amount)
+        const arrayResult = await deleteTransferService(transferId, transfer.originAccountId, transfer.destinyAccountId, transfer.amount, transfer.destinyAmount)
 
         res.status(200).json(arrayResult)
     } catch (error) {

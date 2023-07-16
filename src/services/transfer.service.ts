@@ -113,7 +113,7 @@ async function getTransferByIdService(transferId: number) {
     return transfer
 }
 
-async function createTransferService(originAccountId: number, destinyAccountId: number, amount: number, comment: string, date: string) {
+async function createTransferService(originAccountId: number, destinyAccountId: number, amount: number, destinyAmount: number, comment: string, date: string) {
     const resultArray = await prisma.$transaction([
         prisma.account.update({
             where: {
@@ -131,7 +131,7 @@ async function createTransferService(originAccountId: number, destinyAccountId: 
             },
             data: {
                 balance: {
-                    increment: amount
+                    increment: destinyAmount
                 }
             }
         }),
@@ -148,6 +148,7 @@ async function createTransferService(originAccountId: number, destinyAccountId: 
                     }
                 },
                 amount: amount,
+                destinyAmount: destinyAmount,
                 comment: comment,
                 date: date
             }
@@ -156,11 +157,11 @@ async function createTransferService(originAccountId: number, destinyAccountId: 
     return resultArray
 }
 
-async function updateTransferService(currentOriginAccountId: number | null, currentDestinationAccountId: number | null, newOriginAccountId: number, newDestinationAccountId: number, transferId: number, currentAmount: number, newAmount: number, comment: string, date: string) {
+async function updateTransferService(currentOriginAccountId: number | null, currentDestinationAccountId: number | null, newOriginAccountId: number, newDestinationAccountId: number, transferId: number, currentAmount: number, currentDestinyAmount: number, newAmount: number, newDestinyAmount: number, comment: string, date: string) {
     return await prisma.$transaction(async (tx) => {
         let arrayResult = []
         //if there is an origin account, update it
-        if (currentOriginAccountId !== undefined && currentOriginAccountId !== null && currentAmount !== undefined && currentAmount !== null) {
+        if (currentOriginAccountId !== undefined && currentOriginAccountId !== null) {
             arrayResult[0] = await tx.account.update({
                 where: {
                     id: currentOriginAccountId
@@ -173,14 +174,14 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
             })
         }
         //if there is a destination account, update it
-        if (currentDestinationAccountId !== undefined && currentDestinationAccountId !== null && currentAmount !== undefined && currentAmount !== null) {
+        if (currentDestinationAccountId !== undefined && currentDestinationAccountId !== null) {
             arrayResult[1] = await tx.account.update({
                 where: {
                     id: currentDestinationAccountId
                 },
                 data: {
                     balance: {
-                        decrement: currentAmount
+                        decrement: currentDestinyAmount
                     }
                 }
             })
@@ -204,7 +205,7 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
             },
             data: {
                 balance: {
-                    increment: newAmount
+                    increment: newDestinyAmount
                 }
             }
         })
@@ -217,6 +218,7 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
                 originAccount: { connect: { id: newOriginAccountId } },
                 destinyAccount: { connect: { id: newDestinationAccountId } },
                 amount: newAmount,
+                destinyAmount: newDestinyAmount,
                 comment: comment,
                 date: date
             }
@@ -226,11 +228,11 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
     })
 }
 
-async function deleteTransferService(id: number, originAccountId: number | null, destinyAccountId: number | null, amount: number) {
+async function deleteTransferService(id: number, originAccountId: number | null, destinyAccountId: number | null, amount: number, destinyAmount: number) {
     return await prisma.$transaction(async (tx) => {
         let arrayResult = []
         //if there is an origin account, update it
-        if (originAccountId !== undefined && originAccountId !== null && amount !== undefined && amount !== null) {
+        if (originAccountId !== undefined && originAccountId !== null) {
             arrayResult[0] = await tx.account.update({
                 where: {
                     id: originAccountId
@@ -243,14 +245,14 @@ async function deleteTransferService(id: number, originAccountId: number | null,
             })
         }
         //if there is a destination account, update it
-        if (destinyAccountId !== undefined && destinyAccountId !== null && amount !== undefined && amount !== null) {
+        if (destinyAccountId !== undefined && destinyAccountId !== null) {
             arrayResult[1] = await tx.account.update({
                 where: {
                     id: destinyAccountId
                 },
                 data: {
                     balance: {
-                        decrement: amount
+                        decrement: destinyAmount
                     }
                 }
             })

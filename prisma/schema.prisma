@@ -61,6 +61,7 @@ model Account {
 model Transfer {
   id               Int      @id @default(autoincrement())
   amount           Float
+  destinyAmount    Float
   comment          String?  @db.VarChar(255)
   date             DateTime @default(now())
   originAccountId  Int?
