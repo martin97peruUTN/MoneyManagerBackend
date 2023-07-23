@@ -160,55 +160,88 @@ async function createTransferService(originAccountId: number, destinyAccountId: 
 async function updateTransferService(currentOriginAccountId: number | null, currentDestinationAccountId: number | null, newOriginAccountId: number, newDestinationAccountId: number, transferId: number, currentAmount: number, currentDestinyAmount: number, newAmount: number, newDestinyAmount: number, comment: string, date: string) {
     return await prisma.$transaction(async (tx) => {
         let arrayResult = []
-        //if there is an origin account, update it
-        if (currentOriginAccountId !== undefined && currentOriginAccountId !== null) {
-            arrayResult[0] = await tx.account.update({
-                where: {
-                    id: currentOriginAccountId
-                },
-                data: {
-                    balance: {
-                        increment: currentAmount
+        const differentOriginAccount = currentOriginAccountId !== newOriginAccountId
+        const differentDestinationAccount = currentDestinationAccountId !== newDestinationAccountId
+
+        if (differentOriginAccount) {
+            //if there is an origin account, update it
+            if (currentOriginAccountId !== undefined && currentOriginAccountId !== null) {
+                arrayResult[0] = await tx.account.update({
+                    where: {
+                        id: currentOriginAccountId
+                    },
+                    data: {
+                        balance: {
+                            increment: currentAmount
+                        }
                     }
-                }
-            })
-        }
-        //if there is a destination account, update it
-        if (currentDestinationAccountId !== undefined && currentDestinationAccountId !== null) {
+                })
+            }
+            //I'm sure that there is a new origin account, so I update it
             arrayResult[1] = await tx.account.update({
                 where: {
-                    id: currentDestinationAccountId
+                    id: newOriginAccountId
                 },
                 data: {
                     balance: {
-                        decrement: currentDestinyAmount
+                        decrement: newAmount
+                    }
+                }
+            })
+        } else {
+            //I'm sure that there is a new origin account, so I update it, but because the origin account is the same, 
+            //I have to update the balance with the difference between the current amount and the new amount
+            arrayResult[0] = await tx.account.update({
+                where: {
+                    id: newOriginAccountId
+                },
+                data: {
+                    balance: {
+                        increment: currentAmount - newAmount
                     }
                 }
             })
         }
 
-        //I'm sure that there is a new origin and a new destination account, so I update them
-        arrayResult[2] = await tx.account.update({
-            where: {
-                id: newOriginAccountId
-            },
-            data: {
-                balance: {
-                    decrement: newAmount
-                }
+        if (differentDestinationAccount) {
+            //if there is a destination account, update it
+            if (currentDestinationAccountId !== undefined && currentDestinationAccountId !== null) {
+                arrayResult[2] = await tx.account.update({
+                    where: {
+                        id: currentDestinationAccountId
+                    },
+                    data: {
+                        balance: {
+                            decrement: currentDestinyAmount
+                        }
+                    }
+                })
             }
-        })
-
-        arrayResult[3] = await tx.account.update({
-            where: {
-                id: newDestinationAccountId
-            },
-            data: {
-                balance: {
-                    increment: newDestinyAmount
+            //I'm sure that there is a new destination account, so I update it
+            arrayResult[3] = await tx.account.update({
+                where: {
+                    id: newDestinationAccountId
+                },
+                data: {
+                    balance: {
+                        increment: newDestinyAmount
+                    }
                 }
-            }
-        })
+            })
+        } else {
+            //I'm sure that there is a new destination account, so I update it, but because the destination account is the same,
+            //I have to update the balance with the difference between the current amount and the new amount
+            arrayResult[2] = await tx.account.update({
+                where: {
+                    id: newDestinationAccountId
+                },
+                data: {
+                    balance: {
+                        decrement: currentDestinyAmount - newDestinyAmount
+                    }
+                }
+            })
+        }
 
         arrayResult[4] = await tx.transfer.update({
             where: {
