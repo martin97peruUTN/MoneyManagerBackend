@@ -4,7 +4,7 @@ import {
     getAllTransactions,
     getTransactionById,
     createTransaction,
-    // updateTransaction,
+    updateTransaction,
     // deleteTransaction
 } from '../controllers/transaction.controller';
 
@@ -16,7 +16,7 @@ router.get('/transaction/:id', getTransactionById)
 
 router.post('/transaction', createTransaction);
 
-// router.patch('/transaction/:id', updateTransaction)
+router.patch('/transaction/:id', updateTransaction)
 
 // router.delete('/transaction/:id', deleteTransaction)
 

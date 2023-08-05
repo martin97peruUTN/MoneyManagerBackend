@@ -70,14 +70,130 @@ async function createTransactionService(amount: number, comment: string, date: D
     })
 }
 
-async function updateTransactionService(transactionData: Prisma.TransactionUpdateInput, id: number) {
-    const transaction = await prisma.transaction.update({
-        where: {
-            id: id
-        },
-        data: transactionData
+async function updateTransactionService(transactionId: number, currentAccountId: number | null, newAccountId: number,
+    oldTransactionCategoryIsExpense: boolean, newTransactionCategoryId: number, newTransactionCategoryIsExpense: boolean,
+    oldAmount: number, newAmount: number, comment: string, date: Date) {
+    return await prisma.$transaction(async (tx) => {
+
+        let result: any = {}
+
+        const differentAccount = currentAccountId !== newAccountId
+
+        if (differentAccount) {
+            //Return old account balance
+            if (currentAccountId !== null) {
+                if (oldTransactionCategoryIsExpense) {
+                    result.oldAccountUpdated = await tx.account.update({
+                        where: {
+                            id: currentAccountId
+                        },
+                        data: {
+                            balance: {
+                                increment: oldAmount
+                            }
+                        }
+                    })
+                } else {
+                    result.oldAccountUpdated = await tx.account.update({
+                        where: {
+                            id: currentAccountId
+                        },
+                        data: {
+                            balance: {
+                                decrement: oldAmount
+                            }
+                        }
+                    })
+                }
+            }
+            //Update new account balance
+            if (newTransactionCategoryIsExpense) {
+                result.newAccountUpdated = await tx.account.update({
+                    where: {
+                        id: newAccountId
+                    },
+                    data: {
+                        balance: {
+                            decrement: newAmount
+                        }
+                    }
+                })
+            } else {
+                result.newAccountUpdated = await tx.account.update({
+                    where: {
+                        id: newAccountId
+                    },
+                    data: {
+                        balance: {
+                            increment: newAmount
+                        }
+                    }
+                })
+            }
+        } else {//same account
+            if (oldTransactionCategoryIsExpense && newTransactionCategoryIsExpense) {
+                result.accountUpdated = await tx.account.update({
+                    where: {
+                        id: currentAccountId
+                    },
+                    data: {
+                        balance: {
+                            increment: oldAmount - newAmount
+                        }
+                    }
+                })
+            } else if (oldTransactionCategoryIsExpense && !newTransactionCategoryIsExpense) {
+                result.accountUpdated = await tx.account.update({
+                    where: {
+                        id: currentAccountId
+                    },
+                    data: {
+                        balance: {
+                            increment: oldAmount + newAmount
+                        }
+                    }
+                })
+            } else if (!oldTransactionCategoryIsExpense && newTransactionCategoryIsExpense) {
+                result.accountUpdated = await tx.account.update({
+                    where: {
+                        id: currentAccountId
+                    },
+                    data: {
+                        balance: {
+                            decrement: oldAmount + newAmount
+                        }
+                    }
+                })
+            } else {//!oldTransactionCategoryIsExpense && !newTransactionCategoryIsExpense
+                result.accountUpdated = await tx.account.update({
+                    where: {
+                        id: currentAccountId
+                    },
+                    data: {
+                        balance: {
+                            decrement: oldAmount - newAmount
+                        }
+                    }
+                })
+            }
+        }
+
+        //Update transaction
+        result.transaction = await tx.transaction.update({
+            where: {
+                id: transactionId
+            },
+            data: {
+                amount: newAmount,
+                comment,
+                date,
+                accountId: newAccountId,
+                transactionCategoryId: newTransactionCategoryId
+            }
+        })
+
+        return result
     })
-    return transaction
 }
 
 async function deleteTransactionService(id: number) {

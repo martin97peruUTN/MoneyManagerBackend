@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { Prisma } from '@prisma/client'
+import { Prisma, TransactionCategory } from '@prisma/client'
 
 import {
     getAllTransactionsService,
@@ -88,7 +88,6 @@ export const createTransaction = async (req: Request, res: Response) => {
             })
             return
         }
-
         const transactionCategory = await getTransactionCategoryByIdService(transactionCategoryId)
         //Can only be retrieved if it is public or owned by the user
         if (transactionCategory === null || (!transactionCategory.public && transactionCategory.userId !== userId)) {
@@ -103,6 +102,76 @@ export const createTransaction = async (req: Request, res: Response) => {
         const createdTransaction = await createTransactionService(amount, comment, transactionDate, accountId, transactionCategoryId, transactionCategory.isExpense)
 
         res.status(201).json(createdTransaction)
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export const updateTransaction = async (req: Request, res: Response) => {
+
+    const { userId } = req.body.user
+
+    try {
+
+        const transactionId = parseInt(req.params.id)
+        const { amount, comment, date, accountId, transactionCategoryId } = req.body;
+
+        const transaction = await getTransactionByIdService(transactionId, userId)
+
+        if (transaction === null) {
+            res.status(404).send({
+                message: 'Transaction not found!'
+            })
+            return
+        }
+
+        if (accountId === undefined || accountId === null) {
+            res.status(400).send({
+                message: 'An account is required!'
+            })
+            return
+        }
+        const account = await getAccountByIdService(accountId, userId)
+        if (account === null) {
+            res.status(404).send({
+                message: 'Account not found!'
+            })
+        }
+
+        const oldTransactionCategory = await getTransactionCategoryByIdService(transaction.transactionCategoryId)
+        //Can only be retrieved if it is public or owned by the user
+        if (oldTransactionCategory === null || (!oldTransactionCategory.public && oldTransactionCategory.userId !== userId)) {
+            res.status(404).send({
+                message: 'Transaction category not found!'
+            })
+            return
+        }
+
+        if (transactionCategoryId === undefined || transactionCategoryId === null) {
+            res.status(400).send({
+                message: 'A transaction category is required!'
+            })
+            return
+        }
+
+        let newTransactionCategory: TransactionCategory | null = oldTransactionCategory
+
+        if (transaction.transactionCategoryId !== transactionCategoryId) {
+            newTransactionCategory = await getTransactionCategoryByIdService(transactionCategoryId)
+            //Can only be retrieved if it is public or owned by the user
+            if (newTransactionCategory === null || (!newTransactionCategory.public && newTransactionCategory.userId !== userId)) {
+                res.status(404).send({
+                    message: 'Transaction category not found!'
+                })
+                return
+            }
+        }
+
+        const newAmount = amount ?? transaction.amount
+
+        const updatedTransaction = await updateTransactionService(transactionId, transaction.accountId, accountId, oldTransactionCategory.isExpense, newTransactionCategory.id, newTransactionCategory.isExpense, transaction.amount, newAmount, comment, date)
+
+        res.status(200).json(updatedTransaction)
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
