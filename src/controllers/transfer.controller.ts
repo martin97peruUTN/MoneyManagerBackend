@@ -183,9 +183,9 @@ export const createTransfer = async (req: Request, res: Response) => {
         //If the accounts are in different currencies, then I have to use the destinyAmount, otherwise I have to use the amount
         const destinyAmountToUse: number = accountsArray[0].currencyId !== accountsArray[1].currencyId ? destinyAmount : amount
 
-        const arrayResult = await createTransferService(originAccountId, destinyAccountId, amount, destinyAmountToUse, comment, transferDate)
+        const result = await createTransferService(originAccountId, destinyAccountId, amount, destinyAmountToUse, comment, transferDate)
 
-        res.status(201).json(arrayResult)
+        res.status(201).json(result)
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -275,9 +275,9 @@ export const updateTransfer = async (req: Request, res: Response) => {
         //If they are of the same currency, I use the same amount, otherwise I use the destinyAmount if it is not null or undefined, otherwise I use the old destinyAmount
         const newDestinyAmountToUse: number = newAccountsArray[0].currencyId === newAccountsArray[1].currencyId ? newAmountToUse : (destinyAmount ?? currentTransfer.destinyAmount)
 
-        const resultArray = await updateTransferService(currentTransfer.originAccountId, currentTransfer.destinyAccountId, originAccountId, destinyAccountId, transferId, currentTransfer.amount, currentTransfer.destinyAmount, newAmountToUse, newDestinyAmountToUse, comment, date)
+        const result = await updateTransferService(currentTransfer.originAccountId, currentTransfer.destinyAccountId, originAccountId, destinyAccountId, transferId, currentTransfer.amount, currentTransfer.destinyAmount, newAmountToUse, newDestinyAmountToUse, comment, date)
 
-        res.status(200).json(resultArray)
+        res.status(200).json(result)
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -310,9 +310,9 @@ export const deleteTransfer = async (req: Request, res: Response) => {
             return
         }
 
-        const arrayResult = await deleteTransferService(transferId, transfer.originAccountId, transfer.destinyAccountId, transfer.amount, transfer.destinyAmount)
+        const result = await deleteTransferService(transferId, transfer.originAccountId, transfer.destinyAccountId, transfer.amount, transfer.destinyAmount)
 
-        res.status(200).json(arrayResult)
+        res.status(200).json(result)
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }

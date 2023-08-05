@@ -154,19 +154,26 @@ async function createTransferService(originAccountId: number, destinyAccountId: 
             }
         })
     ])
-    return resultArray
+
+    const result = {
+        originAccountUpdated: resultArray[0],
+        destinyAccountUpdated: resultArray[1],
+        transferCreated: resultArray[2]
+    }
+
+    return result
 }
 
 async function updateTransferService(currentOriginAccountId: number | null, currentDestinationAccountId: number | null, newOriginAccountId: number, newDestinationAccountId: number, transferId: number, currentAmount: number, currentDestinyAmount: number, newAmount: number, newDestinyAmount: number, comment: string, date: string) {
     return await prisma.$transaction(async (tx) => {
-        let arrayResult = []
+        let result: any = {}
         const differentOriginAccount = currentOriginAccountId !== newOriginAccountId
         const differentDestinationAccount = currentDestinationAccountId !== newDestinationAccountId
 
         if (differentOriginAccount) {
             //if there is an origin account, update it
             if (currentOriginAccountId !== undefined && currentOriginAccountId !== null) {
-                arrayResult[0] = await tx.account.update({
+                result.oldOriginAccountUpdated = await tx.account.update({
                     where: {
                         id: currentOriginAccountId
                     },
@@ -178,7 +185,7 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
                 })
             }
             //I'm sure that there is a new origin account, so I update it
-            arrayResult[1] = await tx.account.update({
+            result.newOriginAccountUpdated = await tx.account.update({
                 where: {
                     id: newOriginAccountId
                 },
@@ -189,9 +196,9 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
                 }
             })
         } else {
-            //I'm sure that there is a new origin account, so I update it, but because the origin account is the same, 
+            //I'm sure that there is a "new" origin account, so I update it, but because the origin account is the same, 
             //I have to update the balance with the difference between the current amount and the new amount
-            arrayResult[0] = await tx.account.update({
+            result.originAccountUpdated = await tx.account.update({
                 where: {
                     id: newOriginAccountId
                 },
@@ -206,7 +213,7 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
         if (differentDestinationAccount) {
             //if there is a destination account, update it
             if (currentDestinationAccountId !== undefined && currentDestinationAccountId !== null) {
-                arrayResult[2] = await tx.account.update({
+                result.oldDestinationAccountAccountUpdated = await tx.account.update({
                     where: {
                         id: currentDestinationAccountId
                     },
@@ -218,7 +225,7 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
                 })
             }
             //I'm sure that there is a new destination account, so I update it
-            arrayResult[3] = await tx.account.update({
+            result.newDestinationAccountUpdated = await tx.account.update({
                 where: {
                     id: newDestinationAccountId
                 },
@@ -229,9 +236,9 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
                 }
             })
         } else {
-            //I'm sure that there is a new destination account, so I update it, but because the destination account is the same,
+            //I'm sure that there is a "new" destination account, so I update it, but because the destination account is the same,
             //I have to update the balance with the difference between the current amount and the new amount
-            arrayResult[2] = await tx.account.update({
+            result.destinationAccountUpdated = await tx.account.update({
                 where: {
                     id: newDestinationAccountId
                 },
@@ -243,7 +250,7 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
             })
         }
 
-        arrayResult[4] = await tx.transfer.update({
+        result.transferUpdated = await tx.transfer.update({
             where: {
                 id: transferId
             },
@@ -257,7 +264,7 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
             }
         })
 
-        return arrayResult
+        return result
     })
 }
 
@@ -297,7 +304,13 @@ async function deleteTransferService(id: number, originAccountId: number | null,
             }
         })
 
-        return arrayResult
+        const result = {
+            originAccountUpdated: arrayResult[0],
+            destinyAccountUpdated: arrayResult[1],
+            transferDeleted: arrayResult[2]
+        }
+
+        return result
     })
 }
 
