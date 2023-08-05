@@ -5,7 +5,7 @@ import {
     getTransactionById,
     createTransaction,
     updateTransaction,
-    // deleteTransaction
+    deleteTransaction
 } from '../controllers/transaction.controller';
 
 const router = Router()
@@ -18,6 +18,6 @@ router.post('/transaction', createTransaction);
 
 router.patch('/transaction/:id', updateTransaction)
 
-// router.delete('/transaction/:id', deleteTransaction)
+router.delete('/transaction/:id', deleteTransaction)
 
 export default router;

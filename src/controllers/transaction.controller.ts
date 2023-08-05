@@ -176,3 +176,35 @@ export const updateTransaction = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
+
+export const deleteTransaction = async (req: Request, res: Response) => {
+
+    const { userId } = req.body.user
+
+    try {
+        const transaction = await getTransactionByIdService(parseInt(req.params.id), userId)
+
+        if (transaction === null) {
+            res.status(404).send({
+                message: 'Transaction not found!'
+            })
+            return
+        }
+
+        const transactionCategory = await getTransactionCategoryByIdService(transaction.transactionCategoryId)
+        //Can only be retrieved if it is public or owned by the user
+        if (transactionCategory === null || (!transactionCategory.public && transactionCategory.userId !== userId)) {
+            res.status(404).send({
+                message: 'Transaction category not found!'
+            })
+            return
+        }
+
+        const result = await deleteTransactionService(transaction.id, transaction.accountId, transactionCategory.isExpense, transaction.amount)
+
+        res.status(200).send(result)
+
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}

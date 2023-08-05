@@ -196,13 +196,45 @@ async function updateTransactionService(transactionId: number, currentAccountId:
     })
 }
 
-async function deleteTransactionService(id: number) {
-    const transaction = await prisma.transaction.delete({
-        where: {
-            id: id
+async function deleteTransactionService(transactionId: number, accountId: number | null, isExpense: boolean, amount: number) {
+    return await prisma.$transaction(async (tx) => {
+
+        let result: any = {}
+
+        if (accountId !== null) {
+            if (isExpense) {
+                result.accountUpdated = await tx.account.update({
+                    where: {
+                        id: accountId
+                    },
+                    data: {
+                        balance: {
+                            increment: amount
+                        }
+                    }
+                })
+            } else {
+                result.accountUpdated = await tx.account.update({
+                    where: {
+                        id: accountId
+                    },
+                    data: {
+                        balance: {
+                            decrement: amount
+                        }
+                    }
+                })
+            }
         }
+
+        result.transaction = await tx.transaction.delete({
+            where: {
+                id: transactionId
+            }
+        })
+
+        return result
     })
-    return transaction
 }
 
 export {
