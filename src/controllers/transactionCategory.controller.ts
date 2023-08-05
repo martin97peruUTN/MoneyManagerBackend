@@ -50,10 +50,16 @@ export const createTransactionCategory = async (req: Request, res: Response) => 
     try {
         const { name, isExpense } = req.body;
         if (name === undefined || name === "") {
-            throw new Error("A name is required");
+            res.status(400).send({
+                message: 'A name is required!'
+            })
+            return
         }
         if (isExpense === undefined) {
-            throw new Error("isExpense is required");
+            res.status(400).send({
+                message: 'isExpense is required!'
+            })
+            return
         }
 
         const newTransactionCategory: Prisma.TransactionCategoryCreateInput = {

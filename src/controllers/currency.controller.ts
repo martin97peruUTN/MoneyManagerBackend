@@ -39,7 +39,10 @@ export const createCurrency = async (req: Request, res: Response) => {
         if (name === undefined || name === "" ||
             symbol === undefined || symbol === "" ||
             code === undefined || code === "") {
-            throw new Error("A name, symbol and code are required");
+            res.status(400).send({
+                message: 'A name, symbol and code are required!'
+            })
+            return
         }
 
         const newCurrency: Prisma.CurrencyCreateInput = {

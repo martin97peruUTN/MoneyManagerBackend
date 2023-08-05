@@ -41,7 +41,10 @@ export const createUser = async (req: Request, res: Response) => {
             password === undefined || password === "" ||
             name === undefined || name === "" ||
             lastname === undefined || lastname === "") {
-            throw new Error("All fields are required");
+            res.status(400).send({
+                message: 'All fields are required!'
+            })
+            return
         }
 
         const newUser: Prisma.UserCreateInput = {

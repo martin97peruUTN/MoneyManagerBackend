@@ -41,7 +41,10 @@ export const createAccount = async (req: Request, res: Response) => {
         const { name, balance, currencyId } = req.body
 
         if (name === undefined || name === "" || currencyId === undefined || currencyId === "") {
-            throw new Error("A name and a currency are required");
+            res.status(400).send({
+                message: 'A name and a currency are required!'
+            })
+            return
         }
 
         const newAccount: Prisma.AccountCreateInput = {
