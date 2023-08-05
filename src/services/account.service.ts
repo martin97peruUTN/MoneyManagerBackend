@@ -9,9 +9,10 @@ async function getAllAccountsService(userId: number) {
     return accounts
 }
 
-async function getAccountByIdService(accountId: number) {
-    const account = await prisma.account.findUnique({
+async function getAccountByIdService(accountId: number, userId: number) {
+    const account = await prisma.account.findFirst({
         where: {
+            userId: userId,
             id: accountId
         }
     })

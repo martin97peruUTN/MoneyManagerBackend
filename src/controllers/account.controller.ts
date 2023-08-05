@@ -22,8 +22,8 @@ export const getAllAccounts = async (req: Request, res: Response) => {
 export const getAccountById = async (req: Request, res: Response) => {
     const { userId } = req.body.user
     try {
-        const account = await getAccountByIdService(+req.params.id)
-        if (account === null || account.userId !== userId) {
+        const account = await getAccountByIdService(+req.params.id, userId)
+        if (account === null) {
             res.status(404).send({
                 message: 'Account not found!'
             })
@@ -68,8 +68,8 @@ export const updateAccount = async (req: Request, res: Response) => {
         const { name, balance, currencyId } = req.body
 
         //Before, I make sure it belongs to the user
-        const existingAccount = await getAccountByIdService(+req.params.id)
-        if (existingAccount === null || existingAccount.userId !== userId) {
+        const existingAccount = await getAccountByIdService(+req.params.id, userId)
+        if (existingAccount === null) {
             return res.status(404).send({
                 message: 'Account not found!'
             })
@@ -100,8 +100,8 @@ export const deleteAccount = async (req: Request, res: Response) => {
     const { userId } = req.body.user
     try {
         //Before, I make sure it belongs to the user
-        const existingAccount = await getAccountByIdService(+req.params.id)
-        if (existingAccount === null || existingAccount.userId !== userId) {
+        const existingAccount = await getAccountByIdService(+req.params.id, userId)
+        if (existingAccount === null) {
             return res.status(404).send({
                 message: 'Account not found!'
             })

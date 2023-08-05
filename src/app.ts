@@ -11,6 +11,7 @@ import accountRoutes from './routes/account.routes';
 import currencyRoutes from './routes/currency.routes';
 import transactionCategoryRoutes from './routes/transactionCategory.routes';
 import transferRoutes from './routes/transfer.routes';
+import transactionRoutes from './routes/transaction.routes';
 
 //import { connectionDB } from './db.js';
 
@@ -27,6 +28,19 @@ app.use('/api', authenticateToken)
 //All routes starting with /api/admin will be admin only
 app.use('*/admin', isAdmin)
 
+/**Admin routes:
+ * 	User:
+ * 		GET: /admin/user
+ * 		GET: /admin/user/:id
+ * 	Currency:
+ * 		POST: /admin/currency
+ * 		PATCH: /admin/currency/:id
+ * 		DELETE: /admin/currency/:id
+ * 	TransactionCategory:
+ * 		PATCH: transactionCategory/:id (when updating a public transaction category, only admin can do it)
+ * 		DELETE: transactionCategory/:id (when deleting a public transaction category, only admin can do it)
+ */
+
 //Routes
 app.use(loginRoutes)
 //userCreationRoute is apart because it does not need authentication
@@ -36,6 +50,7 @@ app.use('/api', accountRoutes)
 app.use('/api', currencyRoutes)
 app.use('/api', transactionCategoryRoutes)
 app.use('/api', transferRoutes)
+app.use('/api', transactionRoutes)
 
 //Not found
 //TS no hace falta poner Request y Response explicitamente, son inferidos porque app es de tipo Express
