@@ -5,12 +5,18 @@ import {
     getTransactionById,
     createTransaction,
     updateTransaction,
-    deleteTransaction
+    deleteTransaction,
+    getAllTransactionsExpenses,
+    getAllTransactionsIncomes
 } from '../controllers/transaction.controller';
 
 const router = Router()
 
 router.get('/transactions', getAllTransactions)
+
+router.get('/transactions/expenses', getAllTransactionsExpenses)
+
+router.get('/transactions/incomes', getAllTransactionsIncomes)
 
 router.get('/transaction/:id', getTransactionById)
 

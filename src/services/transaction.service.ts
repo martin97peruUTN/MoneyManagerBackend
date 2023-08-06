@@ -14,6 +14,36 @@ async function getAllTransactionsService(userId: number) {
     return transactionsResult
 }
 
+async function getAllTransactionsExpensesService(userId: number) {
+    const transactionsResult = await prisma.transaction.findMany({
+        where: {
+            account: {
+                userId: userId
+            },
+            transactionCategory: {
+                isExpense: true
+            }
+        }
+    });
+
+    return transactionsResult
+}
+
+async function getAllTransactionsIncomesService(userId: number) {
+    const transactionsResult = await prisma.transaction.findMany({
+        where: {
+            account: {
+                userId: userId
+            },
+            transactionCategory: {
+                isExpense: false
+            }
+        }
+    });
+
+    return transactionsResult
+}
+
 async function getTransactionByIdService(transactionId: number, userId: number) {
     const transaction = await prisma.transaction.findFirst({
         where: {
@@ -239,6 +269,8 @@ async function deleteTransactionService(transactionId: number, accountId: number
 
 export {
     getAllTransactionsService,
+    getAllTransactionsExpensesService,
+    getAllTransactionsIncomesService,
     getTransactionByIdService,
     createTransactionService,
     updateTransactionService,

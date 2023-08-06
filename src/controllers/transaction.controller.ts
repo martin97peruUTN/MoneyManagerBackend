@@ -4,6 +4,8 @@ import { Prisma, TransactionCategory } from '@prisma/client'
 
 import {
     getAllTransactionsService,
+    getAllTransactionsExpensesService,
+    getAllTransactionsIncomesService,
     getTransactionByIdService,
     createTransactionService,
     updateTransactionService,
@@ -20,6 +22,28 @@ export const getAllTransactions = async (req: Request, res: Response) => {
 
     try {
         res.status(200).json(await getAllTransactionsService(userId))
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export const getAllTransactionsExpenses = async (req: Request, res: Response) => {
+
+    const { userId } = req.body.user
+
+    try {
+        res.status(200).json(await getAllTransactionsExpensesService(userId))
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export const getAllTransactionsIncomes = async (req: Request, res: Response) => {
+
+    const { userId } = req.body.user
+
+    try {
+        res.status(200).json(await getAllTransactionsIncomesService(userId))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
