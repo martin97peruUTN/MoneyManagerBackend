@@ -2,7 +2,7 @@ import { Prisma, PrismaClient, Transfer } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function getAllTransfersByUserService(userId: number) {
+async function getAllTransfersByUserService(userId: number, dateFrom: Date, dateTo: Date) {
     const transfers = await prisma.transfer.findMany({
         where: {
             OR: [
@@ -16,18 +16,26 @@ async function getAllTransfersByUserService(userId: number) {
                         userId: userId
                     }
                 }
-            ]
+            ],
+            date: {
+                gte: dateFrom,
+                lte: dateTo
+            }
         }
     });
     return transfers
 }
 
 //Unused
-async function getAllOriginTransfersByUserService(userId: number) {
+async function getAllOriginTransfersByUserService(userId: number, dateFrom: Date, dateTo: Date) {
     const transfers = await prisma.transfer.findMany({
         where: {
             originAccount: {
                 userId: userId
+            },
+            date: {
+                gte: dateFrom,
+                lte: dateTo
             }
         }
     });
@@ -35,18 +43,22 @@ async function getAllOriginTransfersByUserService(userId: number) {
 }
 
 //Unused
-async function getAllDestinyTransfersByUserService(userId: number) {
+async function getAllDestinyTransfersByUserService(userId: number, dateFrom: Date, dateTo: Date) {
     const transfers = await prisma.transfer.findMany({
         where: {
             destinyAccount: {
                 userId: userId
+            },
+            date: {
+                gte: dateFrom,
+                lte: dateTo
             }
         }
     });
     return transfers
 }
 
-async function getAllTransfersByAccountIdService(userId: number, accountId: number) {
+async function getAllTransfersByAccountIdService(userId: number, accountId: number, dateFrom: Date, dateTo: Date) {
     const transfers = await prisma.transfer.findMany({
         where: {
             OR: [
@@ -62,30 +74,42 @@ async function getAllTransfersByAccountIdService(userId: number, accountId: numb
                         userId: userId
                     }
                 }
-            ]
-        }
-    });
-    return transfers
-}
-
-async function getAllOriginTransfersByAccountIdService(userId: number, accountId: number) {
-    const transfers = await prisma.transfer.findMany({
-        where: {
-            originAccount: {
-                id: accountId,
-                userId: userId
+            ],
+            date: {
+                gte: dateFrom,
+                lte: dateTo
             }
         }
     });
     return transfers
 }
 
-async function getAllDestinyTransfersByAccountIdService(userId: number, accountId: number) {
+async function getAllOriginTransfersByAccountIdService(userId: number, accountId: number, dateFrom: Date, dateTo: Date) {
+    const transfers = await prisma.transfer.findMany({
+        where: {
+            originAccount: {
+                id: accountId,
+                userId: userId
+            },
+            date: {
+                gte: dateFrom,
+                lte: dateTo
+            }
+        }
+    });
+    return transfers
+}
+
+async function getAllDestinyTransfersByAccountIdService(userId: number, accountId: number, dateFrom: Date, dateTo: Date) {
     const transfers = await prisma.transfer.findMany({
         where: {
             destinyAccount: {
                 id: accountId,
                 userId: userId
+            },
+            date: {
+                gte: dateFrom,
+                lte: dateTo
             }
         }
     });

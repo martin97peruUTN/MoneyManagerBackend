@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 
 import { Prisma } from '@prisma/client'
 
+import * as miscFunctions from '../utils/miscFunctions'
+
 import {
     getAllTransfersByUserService,
     getAllOriginTransfersByUserService,
@@ -21,9 +23,22 @@ import {
 
 //By userId only
 export const getAllTransfersByUser = async (req: Request, res: Response) => {
+
     const { userId } = req.body.user
+
+    const { dateFrom, dateTo } = req.query
+    const dateFromParsed = miscFunctions.parseDate(dateFrom as string) ?? miscFunctions.getFirstDayOfMonth(new Date())
+    const dateToParsed = miscFunctions.parseDate(dateTo as string) ?? miscFunctions.getLastDayOfMonth(new Date())
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+        res.status(400).send({
+            message: 'dateFrom must be before dateTo!'
+        })
+        return
+    }
+
     try {
-        res.status(200).json(await getAllTransfersByUserService(userId))
+        res.status(200).json(await getAllTransfersByUserService(userId, dateFromParsed, dateToParsed))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -31,9 +46,22 @@ export const getAllTransfersByUser = async (req: Request, res: Response) => {
 
 //Unused
 export const getAllOriginTransfersByUser = async (req: Request, res: Response) => {
+
     const { userId } = req.body.user
+
+    const { dateFrom, dateTo } = req.query
+    const dateFromParsed = miscFunctions.parseDate(dateFrom as string) ?? miscFunctions.getFirstDayOfMonth(new Date())
+    const dateToParsed = miscFunctions.parseDate(dateTo as string) ?? miscFunctions.getLastDayOfMonth(new Date())
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+        res.status(400).send({
+            message: 'dateFrom must be before dateTo!'
+        })
+        return
+    }
+
     try {
-        res.status(200).json(await getAllOriginTransfersByUserService(userId))
+        res.status(200).json(await getAllOriginTransfersByUserService(userId, dateFromParsed, dateToParsed))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -41,9 +69,22 @@ export const getAllOriginTransfersByUser = async (req: Request, res: Response) =
 
 //Unused
 export const getAllDestinyTransfersByUser = async (req: Request, res: Response) => {
+
     const { userId } = req.body.user
+
+    const { dateFrom, dateTo } = req.query
+    const dateFromParsed = miscFunctions.parseDate(dateFrom as string) ?? miscFunctions.getFirstDayOfMonth(new Date())
+    const dateToParsed = miscFunctions.parseDate(dateTo as string) ?? miscFunctions.getLastDayOfMonth(new Date())
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+        res.status(400).send({
+            message: 'dateFrom must be before dateTo!'
+        })
+        return
+    }
+
     try {
-        res.status(200).json(await getAllDestinyTransfersByUserService(userId))
+        res.status(200).json(await getAllDestinyTransfersByUserService(userId, dateFromParsed, dateToParsed))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -51,33 +92,72 @@ export const getAllDestinyTransfersByUser = async (req: Request, res: Response) 
 
 //By userId and accountId
 export const getAllTransfersByAccountId = async (req: Request, res: Response) => {
+
     const { userId } = req.body.user
+
+    const { dateFrom, dateTo } = req.query
+    const dateFromParsed = miscFunctions.parseDate(dateFrom as string) ?? miscFunctions.getFirstDayOfMonth(new Date())
+    const dateToParsed = miscFunctions.parseDate(dateTo as string) ?? miscFunctions.getLastDayOfMonth(new Date())
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+        res.status(400).send({
+            message: 'dateFrom must be before dateTo!'
+        })
+        return
+    }
+
     try {
         //I don't check if the accounts belong to the user because the service method already does it
         const accountId = +req.params.id
-        res.status(200).json(await getAllTransfersByAccountIdService(userId, accountId))
+        res.status(200).json(await getAllTransfersByAccountIdService(userId, accountId, dateFromParsed, dateToParsed))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
 
 export const getAllOriginTransfersByAccountId = async (req: Request, res: Response) => {
+
     const { userId } = req.body.user
+
+    const { dateFrom, dateTo } = req.query
+    const dateFromParsed = miscFunctions.parseDate(dateFrom as string) ?? miscFunctions.getFirstDayOfMonth(new Date())
+    const dateToParsed = miscFunctions.parseDate(dateTo as string) ?? miscFunctions.getLastDayOfMonth(new Date())
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+        res.status(400).send({
+            message: 'dateFrom must be before dateTo!'
+        })
+        return
+    }
+
     try {
         //I don't check if the accounts belong to the user because the service method already does it
         const accountId = +req.params.id
-        res.status(200).json(await getAllOriginTransfersByAccountIdService(userId, accountId))
+        res.status(200).json(await getAllOriginTransfersByAccountIdService(userId, accountId, dateFromParsed, dateToParsed))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
 
 export const getAllDestinyTransfersByAccountId = async (req: Request, res: Response) => {
+
     const { userId } = req.body.user
+
+    const { dateFrom, dateTo } = req.query
+    const dateFromParsed = miscFunctions.parseDate(dateFrom as string) ?? miscFunctions.getFirstDayOfMonth(new Date())
+    const dateToParsed = miscFunctions.parseDate(dateTo as string) ?? miscFunctions.getLastDayOfMonth(new Date())
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+        res.status(400).send({
+            message: 'dateFrom must be before dateTo!'
+        })
+        return
+    }
+
     try {
         //I don't check if the accounts belong to the user because the service method already does it
         const accountId = +req.params.id
-        res.status(200).json(await getAllDestinyTransfersByAccountIdService(userId, accountId))
+        res.status(200).json(await getAllDestinyTransfersByAccountIdService(userId, accountId, dateFromParsed, dateToParsed))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }

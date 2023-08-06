@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 
 import { Prisma, TransactionCategory } from '@prisma/client'
 
+import * as miscFunctions from '../utils/miscFunctions'
+
 import {
     getAllTransactionsService,
     getAllTransactionsExpensesService,
@@ -20,8 +22,19 @@ export const getAllTransactions = async (req: Request, res: Response) => {
 
     const { userId } = req.body.user
 
+    const { dateFrom, dateTo } = req.query
+    const dateFromParsed = miscFunctions.parseDate(dateFrom as string) ?? miscFunctions.getFirstDayOfMonth(new Date())
+    const dateToParsed = miscFunctions.parseDate(dateTo as string) ?? miscFunctions.getLastDayOfMonth(new Date())
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+        res.status(400).send({
+            message: 'dateFrom must be before dateTo!'
+        })
+        return
+    }
+
     try {
-        res.status(200).json(await getAllTransactionsService(userId))
+        res.status(200).json(await getAllTransactionsService(userId, dateFromParsed, dateToParsed))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -31,8 +44,19 @@ export const getAllTransactionsExpenses = async (req: Request, res: Response) =>
 
     const { userId } = req.body.user
 
+    const { dateFrom, dateTo } = req.query
+    const dateFromParsed = miscFunctions.parseDate(dateFrom as string) ?? miscFunctions.getFirstDayOfMonth(new Date())
+    const dateToParsed = miscFunctions.parseDate(dateTo as string) ?? miscFunctions.getLastDayOfMonth(new Date())
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+        res.status(400).send({
+            message: 'dateFrom must be before dateTo!'
+        })
+        return
+    }
+
     try {
-        res.status(200).json(await getAllTransactionsExpensesService(userId))
+        res.status(200).json(await getAllTransactionsExpensesService(userId, dateFromParsed, dateToParsed))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -42,8 +66,19 @@ export const getAllTransactionsIncomes = async (req: Request, res: Response) => 
 
     const { userId } = req.body.user
 
+    const { dateFrom, dateTo } = req.query
+    const dateFromParsed = miscFunctions.parseDate(dateFrom as string) ?? miscFunctions.getFirstDayOfMonth(new Date())
+    const dateToParsed = miscFunctions.parseDate(dateTo as string) ?? miscFunctions.getLastDayOfMonth(new Date())
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+        res.status(400).send({
+            message: 'dateFrom must be before dateTo!'
+        })
+        return
+    }
+
     try {
-        res.status(200).json(await getAllTransactionsIncomesService(userId))
+        res.status(200).json(await getAllTransactionsIncomesService(userId, dateFromParsed, dateToParsed))
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }

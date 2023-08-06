@@ -2,11 +2,15 @@ import { Prisma, PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function getAllTransactionsService(userId: number) {
+async function getAllTransactionsService(userId: number, dateFrom: Date, dateTo: Date) {
     const transactionsResult = await prisma.transaction.findMany({
         where: {
             account: {
                 userId: userId
+            },
+            date: {
+                gte: dateFrom,
+                lte: dateTo
             }
         }
     });
@@ -14,7 +18,7 @@ async function getAllTransactionsService(userId: number) {
     return transactionsResult
 }
 
-async function getAllTransactionsExpensesService(userId: number) {
+async function getAllTransactionsExpensesService(userId: number, dateFrom: Date, dateTo: Date) {
     const transactionsResult = await prisma.transaction.findMany({
         where: {
             account: {
@@ -22,6 +26,10 @@ async function getAllTransactionsExpensesService(userId: number) {
             },
             transactionCategory: {
                 isExpense: true
+            },
+            date: {
+                gte: dateFrom,
+                lte: dateTo
             }
         }
     });
@@ -29,7 +37,7 @@ async function getAllTransactionsExpensesService(userId: number) {
     return transactionsResult
 }
 
-async function getAllTransactionsIncomesService(userId: number) {
+async function getAllTransactionsIncomesService(userId: number, dateFrom: Date, dateTo: Date) {
     const transactionsResult = await prisma.transaction.findMany({
         where: {
             account: {
@@ -37,6 +45,10 @@ async function getAllTransactionsIncomesService(userId: number) {
             },
             transactionCategory: {
                 isExpense: false
+            },
+            date: {
+                gte: dateFrom,
+                lte: dateTo
             }
         }
     });
