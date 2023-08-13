@@ -2,9 +2,9 @@
   "version": 2,
   "name": "moneymanagerbackend",
   "builds": [
-    { "src": "src/app.js", "use": "@vercel/node" }
+    { "src": "src/app.ts", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/src/app.js" }
+    { "src": "/(.*)", "dest": "/src/app.ts" }
   ]
 }
