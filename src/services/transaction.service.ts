@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Prisma, Account, Transaction } from '@prisma/client'
 import prisma from '../prisma'
 
 async function getAllTransactionsService(userId: number, dateFrom: Date, dateTo: Date) {
@@ -70,7 +70,7 @@ async function getTransactionByIdService(transactionId: number, userId: number) 
 
 async function createTransactionService(amount: number, comment: string, date: Date, accountId: number, transactionCategoryId: number, isExpense: boolean) {
     return await prisma.$transaction(async (tx) => {
-        let result: any = {}
+        let result: { accountUpdated: Account; transaction: Transaction } = {} as { accountUpdated: Account; transaction: Transaction }
 
         //Update account balance, if it is an expense, decrement, if it is an income, increment
         if (isExpense) {
@@ -116,7 +116,12 @@ async function updateTransactionService(transactionId: number, currentAccountId:
     oldAmount: number, newAmount: number, comment: string, date: Date) {
     return await prisma.$transaction(async (tx) => {
 
-        let result: any = {}
+        let result: {
+            oldAccountUpdated?: Account;
+            newAccountUpdated?: Account;
+            accountUpdated?: Account;
+            transaction: Transaction;
+        } = {} as { transaction: Transaction }
 
         const differentAccount = currentAccountId !== newAccountId
 
@@ -240,7 +245,10 @@ async function updateTransactionService(transactionId: number, currentAccountId:
 async function deleteTransactionService(transactionId: number, accountId: number | null, isExpense: boolean, amount: number) {
     return await prisma.$transaction(async (tx) => {
 
-        let result: any = {}
+        let result: {
+            accountUpdated?: Account;
+            transaction: Transaction;
+        } = {} as { transaction: Transaction }
 
         if (accountId !== null) {
             if (isExpense) {

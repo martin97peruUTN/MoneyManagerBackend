@@ -1,4 +1,4 @@
-import { Prisma, Transfer } from '@prisma/client'
+import { Prisma, Transfer, Account } from '@prisma/client'
 import prisma from '../prisma'
 
 async function getAllTransfersByUserService(userId: number, dateFrom: Date, dateTo: Date) {
@@ -178,7 +178,11 @@ async function createTransferService(originAccountId: number, destinyAccountId: 
         })
     ])
 
-    const result = {
+    const result: {
+        originAccountUpdated: Account;
+        destinyAccountUpdated: Account;
+        transferCreated: Transfer;
+    } = {
         originAccountUpdated: resultArray[0],
         destinyAccountUpdated: resultArray[1],
         transferCreated: resultArray[2]
@@ -189,7 +193,15 @@ async function createTransferService(originAccountId: number, destinyAccountId: 
 
 async function updateTransferService(currentOriginAccountId: number | null, currentDestinationAccountId: number | null, newOriginAccountId: number, newDestinationAccountId: number, transferId: number, currentAmount: number, currentDestinyAmount: number, newAmount: number, newDestinyAmount: number, comment: string, date: string) {
     return await prisma.$transaction(async (tx) => {
-        let result: any = {}
+        let result: {
+            oldOriginAccountUpdated?: Account;
+            newOriginAccountUpdated?: Account;
+            originAccountUpdated?: Account;
+            oldDestinationAccountAccountUpdated?: Account;
+            newDestinationAccountUpdated?: Account;
+            destinationAccountUpdated?: Account;
+            transferUpdated: Transfer;
+        } = {} as { transferUpdated: Transfer }
         const differentOriginAccount = currentOriginAccountId !== newOriginAccountId
         const differentDestinationAccount = currentDestinationAccountId !== newDestinationAccountId
 
@@ -293,7 +305,7 @@ async function updateTransferService(currentOriginAccountId: number | null, curr
 
 async function deleteTransferService(id: number, originAccountId: number | null, destinyAccountId: number | null, amount: number, destinyAmount: number) {
     return await prisma.$transaction(async (tx) => {
-        let arrayResult = []
+        let arrayResult: (Account | Transfer)[] = []
         //if there is an origin account, update it
         if (originAccountId !== undefined && originAccountId !== null) {
             arrayResult[0] = await tx.account.update({
@@ -327,10 +339,14 @@ async function deleteTransferService(id: number, originAccountId: number | null,
             }
         })
 
-        const result = {
-            originAccountUpdated: arrayResult[0],
-            destinyAccountUpdated: arrayResult[1],
-            transferDeleted: arrayResult[2]
+        const result: {
+            originAccountUpdated?: Account;
+            destinyAccountUpdated?: Account;
+            transferDeleted: Transfer;
+        } = {
+            originAccountUpdated: arrayResult[0] as Account | undefined,
+            destinyAccountUpdated: arrayResult[1] as Account | undefined,
+            transferDeleted: arrayResult[2] as Transfer
         }
 
         return result

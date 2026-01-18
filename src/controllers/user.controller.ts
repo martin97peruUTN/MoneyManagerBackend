@@ -57,14 +57,14 @@ export const createUser = async (req: Request, res: Response) => {
         const user = await createUserService(newUser)
         res.status(200).json(user)
 
-    } catch (error: any) {
-        if (error.code === 'P2002') {
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
             return res.status(409).json({ message: `The username ${req.body.username} is already taken.` });
         }
-        if (error.message === undefined) {
-            return res.status(500).json({ message: "Something went wrong" });
+        if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+            return res.status(400).json({ message: error.message });
         }
-        return res.status(400).json({ message: error.message });
+        return res.status(500).json({ message: "Something went wrong" });
     }
 }
 
