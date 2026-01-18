@@ -1,9 +1,11 @@
 import express, { urlencoded, json, Express, Request, Response } from 'express';
 //IMPORTANTE: si uso Typescript, no tengo que poner "type":"modules" en el package.json
 //Sino no traspila bien. Igualmente aca tengo que usar la notacion de import de TS
+import swaggerUi from 'swagger-ui-express';
 
 import authenticateToken from './middleware/JWTAuthentication';
 import isAdmin from './middleware/AdminRoute';
+import { swaggerSpec } from './config/swagger';
 import { loginRoutes } from './routes/login.routes';
 import userCreationRoute from './routes/userCreation.routes';
 import userRoutes from './routes/user.routes';
@@ -23,6 +25,14 @@ const port = process.env.PORT || 3000
 //Middleware
 app.use(urlencoded({ extended: false }))
 app.use(json())
+
+//Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+	explorer: true,
+	customCss: '.swagger-ui .topbar { display: none }',
+	customSiteTitle: 'Money Manager API Documentation'
+}))
+
 //All routes starting with /api will be protected
 app.use('/api', authenticateToken)
 //All routes starting with /api/admin will be admin only

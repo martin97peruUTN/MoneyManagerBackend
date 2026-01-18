@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS user (
+CREATE TABLE IF NOT EXISTS "Users" (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50),
     password VARCHAR(255),
@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS user (
     lastname VARCHAR(50)
 );
 
-INSERT INTO user (username, password, name, lastname) VALUES 
+INSERT INTO "Users" (username, password, name, lastname) VALUES 
 ('mperussini', '1234', 'Martin', 'Perussini'),
 ('travelli', '1234', 'Tomas', 'Ravelli');
 

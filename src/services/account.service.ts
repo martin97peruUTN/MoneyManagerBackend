@@ -1,6 +1,5 @@
-import { Prisma, PrismaClient, Account } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { Prisma, Account } from '@prisma/client'
+import prisma from '../prisma'
 
 async function getAllAccountsService(userId: number) {
     const accounts = await prisma.account.findMany({

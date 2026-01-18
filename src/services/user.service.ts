@@ -1,15 +1,13 @@
-import { Prisma, PrismaClient, User } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
-
-const prisma = new PrismaClient()
+import { Prisma, Users } from '@prisma/client'
+import prisma from '../prisma'
 
 async function getAllUsersService() {
-    const users = await prisma.user.findMany()
+    const users = await prisma.users.findMany()
     return users
 }
 
 async function getUserByIdService(id: number) {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
         where: {
             id: id
         }
@@ -18,7 +16,7 @@ async function getUserByIdService(id: number) {
 }
 
 async function getUserByUsernameService(username: string) {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
         where: {
             username: username
         }
@@ -26,15 +24,15 @@ async function getUserByUsernameService(username: string) {
     return user
 }
 
-async function createUserService(newUser: Prisma.UserCreateInput): Promise<User> {
-    const createdUser = await prisma.user.create({
+async function createUserService(newUser: Prisma.UsersCreateInput): Promise<Users> {
+    const createdUser = await prisma.users.create({
         data: newUser,
     });
     return createdUser;
 }
 
-async function updateUserService(userData: Prisma.UserUpdateInput, id: number) {
-    const user = await prisma.user.update({
+async function updateUserService(userData: Prisma.UsersUpdateInput, id: number) {
+    const user = await prisma.users.update({
         where: {
             id: id
         },
@@ -44,7 +42,7 @@ async function updateUserService(userData: Prisma.UserUpdateInput, id: number) {
 }
 
 async function deleteUserService(id: number) {
-    const user = await prisma.user.delete({
+    const user = await prisma.users.delete({
         where: {
             id: id
         }

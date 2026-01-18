@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { Prisma, User } from '@prisma/client'
+import { Prisma, Users } from '@prisma/client'
 
 import {
     getAllUsersService,
@@ -47,7 +47,7 @@ export const createUser = async (req: Request, res: Response) => {
             return
         }
 
-        const newUser: Prisma.UserCreateInput = {
+        const newUser: Prisma.UsersCreateInput = {
             username: username,
             password: password,
             name: name,
@@ -80,7 +80,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
         const { username, password, name, lastname } = req.body
 
-        const userData: Prisma.UserUpdateInput = {
+        const userData: Prisma.UsersUpdateInput = {
             username: username,
             password: password,
             name: name,

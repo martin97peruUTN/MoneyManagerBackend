@@ -1,7 +1,5 @@
-import { Prisma, PrismaClient, Currency } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
-
-const prisma = new PrismaClient()
+import { Prisma, Currency } from '@prisma/client'
+import prisma from '../prisma'
 
 async function getAllCurrenciesService() {
     const accounts = await prisma.currency.findMany()

@@ -1,6 +1,5 @@
-import { Prisma, PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { Prisma } from '@prisma/client'
+import prisma from '../prisma'
 
 async function getAllTransactionsService(userId: number, dateFrom: Date, dateTo: Date) {
     const transactionsResult = await prisma.transaction.findMany({
