@@ -1,4 +1,5 @@
 import express, { urlencoded, json, Express, Request, Response } from 'express';
+import cors from 'cors';
 //IMPORTANTE: si uso Typescript, no tengo que poner "type":"modules" en el package.json
 //Sino no traspila bien. Igualmente aca tengo que usar la notacion de import de TS
 import swaggerUi from 'swagger-ui-express';
@@ -20,9 +21,14 @@ import transactionRoutes from './routes/transaction.routes';
 const app = express();
 
 //Settings
-const port = process.env.PORT || 3000
+// Default 1234 with Next.js on 3000 (set PORT in .env to override).
+const port = process.env.PORT || 1234
 
-//Middleware
+//Middleware — when FRONTEND_ORIGIN is unset, reflect the request origin (localhost, 127.0.0.1, any port) for local dev.
+app.use(cors({
+	origin: process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN : true,
+	credentials: false
+}))
 app.use(urlencoded({ extended: false }))
 app.use(json())
 

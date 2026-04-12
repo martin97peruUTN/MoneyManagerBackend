@@ -50,7 +50,7 @@ npx prisma db push    # schema comments mention this for applying schema
 
 ## Environment
 
-Typical variables (infer exact names from code): `DATABASE_URL`, `TOKEN_SECRET`, `PORT` (optional; default 3000). Use `dotenv` locally as the app already does in `prisma.ts`.
+Typical variables (infer exact names from code): `DATABASE_URL`, `TOKEN_SECRET`, `PORT` (optional; default 3001 so Next.js can use 3000). Use `dotenv` locally as the app already does in `prisma.ts`.
 
 ## Conventions for changes
 

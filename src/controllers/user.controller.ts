@@ -55,7 +55,8 @@ export const createUser = async (req: Request, res: Response) => {
         }
 
         const user = await createUserService(newUser)
-        res.status(200).json(user)
+        const { password: _password, ...safeUser } = user
+        res.status(200).json(safeUser)
 
     } catch (error: unknown) {
         if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
