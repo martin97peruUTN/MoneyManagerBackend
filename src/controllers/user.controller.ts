@@ -33,6 +33,25 @@ export const getUserById = async (req: Request, res: Response) => {
     }
 }
 
+export const getMe = async (req: Request, res: Response) => {
+    try {
+        const userId = req.body.user?.userId;
+        if (!userId) {
+            return res.status(401).send({ message: 'Unauthorized' });
+        }
+        const user = await getUserByIdService(userId)
+        if (user === null) {
+            return res.status(404).send({
+                message: 'User not found!'
+            })
+        }
+        res.status(200).json(user)
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+
 export const createUser = async (req: Request, res: Response) => {
     try {
         const { username, password, name, lastname } = req.body

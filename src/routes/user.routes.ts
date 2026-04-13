@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
     getAllUsers,
     getUserById,
+    getMe,
     /*createUser2,*/
     updateUser,
     deleteUser
@@ -73,6 +74,31 @@ router.get('/admin/user', getAllUsers)
 router.get('/admin/user/:id', getUserById)
 
 //router.post('/user2', createUser2)
+
+/**
+ * @swagger
+ * /api/user/me:
+ *   get:
+ *     summary: Get current authenticated user
+ *     description: Retrieve the currently logged in user based on the provided JWT token
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/user/me', getMe)
 
 /**
  * @swagger
