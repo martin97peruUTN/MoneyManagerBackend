@@ -25,7 +25,6 @@ async function getAllTransfersByUserService(userId: number, dateFrom: Date, date
     return transfers
 }
 
-//Unused
 async function getAllOriginTransfersByUserService(userId: number, dateFrom: Date, dateTo: Date) {
     const transfers = await prisma.transfer.findMany({
         where: {
@@ -41,7 +40,6 @@ async function getAllOriginTransfersByUserService(userId: number, dateFrom: Date
     return transfers
 }
 
-//Unused
 async function getAllDestinyTransfersByUserService(userId: number, dateFrom: Date, dateTo: Date) {
     const transfers = await prisma.transfer.findMany({
         where: {

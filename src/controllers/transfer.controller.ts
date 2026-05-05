@@ -44,7 +44,6 @@ export const getAllTransfersByUser = async (req: Request, res: Response) => {
     }
 }
 
-//Unused
 export const getAllOriginTransfersByUser = async (req: Request, res: Response) => {
 
     const { userId } = req.body.user
@@ -67,7 +66,6 @@ export const getAllOriginTransfersByUser = async (req: Request, res: Response) =
     }
 }
 
-//Unused
 export const getAllDestinyTransfersByUser = async (req: Request, res: Response) => {
 
     const { userId } = req.body.user

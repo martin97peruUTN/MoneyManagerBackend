@@ -20,10 +20,23 @@ const router = Router()
  * /api/transfers:
  *   get:
  *     summary: Get all transfers
- *     description: Retrieve all transfers for the authenticated user (both origin and destination)
+ *     description: Retrieve all transfers for the authenticated user (both origin and destination), optionally filtered by date range
  *     tags: [Transfers]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: dateFrom
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering (YYYY-MM-DD). Defaults to first day of current month
+ *       - in: query
+ *         name: dateTo
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering (YYYY-MM-DD). Defaults to last day of current month
  *     responses:
  *       200:
  *         description: List of transfers
@@ -33,6 +46,8 @@ const router = Router()
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Transfer'
+ *       400:
+ *         description: Bad request (invalid date range)
  *       401:
  *         description: Unauthorized
  *       500:
@@ -45,10 +60,23 @@ router.get('/transfers', getAllTransfersByUser)
  * /api/transfers/origin:
  *   get:
  *     summary: Get all origin transfers
- *     description: Retrieve all transfers where the authenticated user's accounts are the origin
+ *     description: Retrieve all transfers where the authenticated user's accounts are the origin, optionally filtered by date range
  *     tags: [Transfers]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: dateFrom
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering (YYYY-MM-DD). Defaults to first day of current month
+ *       - in: query
+ *         name: dateTo
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering (YYYY-MM-DD). Defaults to last day of current month
  *     responses:
  *       200:
  *         description: List of origin transfers
@@ -58,12 +86,13 @@ router.get('/transfers', getAllTransfersByUser)
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Transfer'
+ *       400:
+ *         description: Bad request (invalid date range)
  *       401:
  *         description: Unauthorized
  *       500:
  *         description: Internal server error
  */
-//Unused
 router.get('/transfers/origin', getAllOriginTransfersByUser)
 
 /**
@@ -71,10 +100,23 @@ router.get('/transfers/origin', getAllOriginTransfersByUser)
  * /api/transfers/destiny:
  *   get:
  *     summary: Get all destination transfers
- *     description: Retrieve all transfers where the authenticated user's accounts are the destination
+ *     description: Retrieve all transfers where the authenticated user's accounts are the destination, optionally filtered by date range
  *     tags: [Transfers]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: dateFrom
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering (YYYY-MM-DD). Defaults to first day of current month
+ *       - in: query
+ *         name: dateTo
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering (YYYY-MM-DD). Defaults to last day of current month
  *     responses:
  *       200:
  *         description: List of destination transfers
@@ -84,12 +126,13 @@ router.get('/transfers/origin', getAllOriginTransfersByUser)
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Transfer'
+ *       400:
+ *         description: Bad request (invalid date range)
  *       401:
  *         description: Unauthorized
  *       500:
  *         description: Internal server error
  */
-//Unused
 router.get('/transfers/destiny', getAllDestinyTransfersByUser)
 
 /**
@@ -97,7 +140,7 @@ router.get('/transfers/destiny', getAllDestinyTransfersByUser)
  * /api/transfers/account/{id}:
  *   get:
  *     summary: Get all transfers for an account
- *     description: Retrieve all transfers (both origin and destination) for a specific account
+ *     description: Retrieve all transfers (both origin and destination) for a specific account, optionally filtered by date range
  *     tags: [Transfers]
  *     security:
  *       - bearerAuth: []
@@ -108,6 +151,18 @@ router.get('/transfers/destiny', getAllDestinyTransfersByUser)
  *         schema:
  *           type: integer
  *         description: Account ID (must belong to authenticated user)
+ *       - in: query
+ *         name: dateFrom
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering (YYYY-MM-DD). Defaults to first day of current month
+ *       - in: query
+ *         name: dateTo
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering (YYYY-MM-DD). Defaults to last day of current month
  *     responses:
  *       200:
  *         description: List of transfers
@@ -117,6 +172,8 @@ router.get('/transfers/destiny', getAllDestinyTransfersByUser)
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Transfer'
+ *       400:
+ *         description: Bad request (invalid date range)
  *       404:
  *         description: Account not found
  *       401:
@@ -131,7 +188,7 @@ router.get('/transfers/account/:id', getAllTransfersByAccountId)
  * /api/transfers/account/{id}/origin:
  *   get:
  *     summary: Get origin transfers for an account
- *     description: Retrieve all transfers where the specified account is the origin
+ *     description: Retrieve all transfers where the specified account is the origin, optionally filtered by date range
  *     tags: [Transfers]
  *     security:
  *       - bearerAuth: []
@@ -142,6 +199,18 @@ router.get('/transfers/account/:id', getAllTransfersByAccountId)
  *         schema:
  *           type: integer
  *         description: Account ID (must belong to authenticated user)
+ *       - in: query
+ *         name: dateFrom
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering (YYYY-MM-DD). Defaults to first day of current month
+ *       - in: query
+ *         name: dateTo
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering (YYYY-MM-DD). Defaults to last day of current month
  *     responses:
  *       200:
  *         description: List of origin transfers
@@ -151,6 +220,8 @@ router.get('/transfers/account/:id', getAllTransfersByAccountId)
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Transfer'
+ *       400:
+ *         description: Bad request (invalid date range)
  *       404:
  *         description: Account not found
  *       401:
@@ -165,7 +236,7 @@ router.get('/transfers/account/:id/origin', getAllOriginTransfersByAccountId)
  * /api/transfers/account/{id}/destiny:
  *   get:
  *     summary: Get destination transfers for an account
- *     description: Retrieve all transfers where the specified account is the destination
+ *     description: Retrieve all transfers where the specified account is the destination, optionally filtered by date range
  *     tags: [Transfers]
  *     security:
  *       - bearerAuth: []
@@ -176,6 +247,18 @@ router.get('/transfers/account/:id/origin', getAllOriginTransfersByAccountId)
  *         schema:
  *           type: integer
  *         description: Account ID (must belong to authenticated user)
+ *       - in: query
+ *         name: dateFrom
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering (YYYY-MM-DD). Defaults to first day of current month
+ *       - in: query
+ *         name: dateTo
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering (YYYY-MM-DD). Defaults to last day of current month
  *     responses:
  *       200:
  *         description: List of destination transfers
@@ -185,6 +268,8 @@ router.get('/transfers/account/:id/origin', getAllOriginTransfersByAccountId)
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Transfer'
+ *       400:
+ *         description: Bad request (invalid date range)
  *       404:
  *         description: Account not found
  *       401:
