@@ -1,21 +1,30 @@
 import { Prisma, Users } from '@prisma/client'
 import prisma from '../prisma'
 
-async function getAllUsersService() {
-    const users = await prisma.users.findMany()
-    return users
+/** User shape safe to return from APIs (excludes password hash). */
+export type PublicUser = Omit<Users, 'password'>
+
+function omitPassword(user: Users): PublicUser {
+    const { password: _password, ...rest } = user
+    return rest
 }
 
-async function getUserByIdService(id: number) {
+async function getAllUsersService(): Promise<PublicUser[]> {
+    const users = await prisma.users.findMany()
+    return users.map(omitPassword)
+}
+
+async function getUserByIdService(id: number): Promise<PublicUser | null> {
     const user = await prisma.users.findUnique({
         where: {
             id: id
         }
     })
-    return user
+    return user ? omitPassword(user) : null
 }
 
-async function getUserByUsernameService(username: string) {
+/** Includes password — only for auth flows (e.g. login). */
+async function getUserByUsernameService(username: string): Promise<Users | null> {
     const user = await prisma.users.findUnique({
         where: {
             username: username
@@ -24,30 +33,33 @@ async function getUserByUsernameService(username: string) {
     return user
 }
 
-async function createUserService(newUser: Prisma.UsersCreateInput): Promise<Users> {
+async function createUserService(newUser: Prisma.UsersCreateInput): Promise<PublicUser> {
     const createdUser = await prisma.users.create({
         data: newUser,
-    });
-    return createdUser;
+    })
+    return omitPassword(createdUser)
 }
 
-async function updateUserService(userData: Prisma.UsersUpdateInput, id: number) {
+async function updateUserService(
+    userData: Prisma.UsersUpdateInput,
+    id: number
+): Promise<PublicUser> {
     const user = await prisma.users.update({
         where: {
             id: id
         },
         data: userData
     })
-    return user
+    return omitPassword(user)
 }
 
-async function deleteUserService(id: number) {
+async function deleteUserService(id: number): Promise<PublicUser> {
     const user = await prisma.users.delete({
         where: {
             id: id
         }
     })
-    return user
+    return omitPassword(user)
 }
 
 export {
