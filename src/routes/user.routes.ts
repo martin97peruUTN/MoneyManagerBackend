@@ -3,12 +3,8 @@ import { Router } from 'express';
 import {
     getAllUsers,
     getUserById,
-    getMe,
-    /*createUser2,*/
-    updateUser,
-    deleteUser
+    getMe
 } from '../controllers/user.controller';
-//} from '../controllers/user.mysql2.controller';
 
 const router = Router()
 
@@ -100,86 +96,7 @@ router.get('/admin/user/:id', getUserById)
  */
 router.get('/user/me', getMe)
 
-/**
- * @swagger
- * /api/user/{id}:
- *   patch:
- *     summary: Update user profile
- *     description: Update user profile information. Users can only update their own profile
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: User ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 example: John
- *               lastname:
- *                 type: string
- *                 example: Doe
- *               password:
- *                 type: string
- *                 example: newpassword123
- *     responses:
- *       200:
- *         description: User updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       400:
- *         description: Bad request
- *       403:
- *         description: Forbidden (cannot update another user's profile)
- *       404:
- *         description: User not found
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
- */
-router.patch('/user/:id', updateUser)
-
-/**
- * @swagger
- * /api/user/{id}:
- *   delete:
- *     summary: Delete user account
- *     description: Delete a user account. Users can only delete their own account
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: User ID
- *     responses:
- *       200:
- *         description: User deleted successfully
- *       403:
- *         description: Forbidden (cannot delete another user's account)
- *       404:
- *         description: User not found
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
- */
-router.delete('/user/:id', deleteUser)
+// Profile updates, password changes and account deletion are handled by Better
+// Auth on the frontend (authClient.updateUser / changePassword / deleteUser).
 
 export default router;

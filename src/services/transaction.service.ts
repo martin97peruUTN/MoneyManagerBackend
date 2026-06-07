@@ -1,7 +1,7 @@
 import { Prisma, Account, Transaction } from '@/generated/prisma'
 import prisma from '../prisma'
 
-async function getAllTransactionsService(userId: number, dateFrom: Date, dateTo: Date) {
+async function getAllTransactionsService(userId: string, dateFrom: Date, dateTo: Date) {
     const transactionsResult = await prisma.transaction.findMany({
         where: {
             account: {
@@ -17,7 +17,7 @@ async function getAllTransactionsService(userId: number, dateFrom: Date, dateTo:
     return transactionsResult
 }
 
-async function getAllTransactionsExpensesService(userId: number, dateFrom: Date, dateTo: Date) {
+async function getAllTransactionsExpensesService(userId: string, dateFrom: Date, dateTo: Date) {
     const transactionsResult = await prisma.transaction.findMany({
         where: {
             account: {
@@ -36,7 +36,7 @@ async function getAllTransactionsExpensesService(userId: number, dateFrom: Date,
     return transactionsResult
 }
 
-async function getAllTransactionsIncomesService(userId: number, dateFrom: Date, dateTo: Date) {
+async function getAllTransactionsIncomesService(userId: string, dateFrom: Date, dateTo: Date) {
     const transactionsResult = await prisma.transaction.findMany({
         where: {
             account: {
@@ -55,7 +55,7 @@ async function getAllTransactionsIncomesService(userId: number, dateFrom: Date, 
     return transactionsResult
 }
 
-async function getTransactionByIdService(transactionId: number, userId: number) {
+async function getTransactionByIdService(transactionId: number, userId: string) {
     const transaction = await prisma.transaction.findFirst({
         where: {
             id: transactionId,

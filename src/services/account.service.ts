@@ -1,14 +1,14 @@
 import { Prisma, Account } from '@/generated/prisma'
 import prisma from '../prisma'
 
-async function getAllAccountsService(userId: number) {
+async function getAllAccountsService(userId: string) {
     const accounts = await prisma.account.findMany({
         where: { userId: userId }
     })
     return accounts
 }
 
-async function getAccountByIdService(accountId: number, userId: number) {
+async function getAccountByIdService(accountId: number, userId: string) {
     const account = await prisma.account.findFirst({
         where: {
             userId: userId,

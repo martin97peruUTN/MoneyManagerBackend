@@ -4,7 +4,7 @@
 generator client {
   provider     = "prisma-client-js"
   output       = "../src/generated/prisma"
-  moduleFormat = "cjs"
+  moduleFormat = "esm"
 }
 
 datasource db {
@@ -12,19 +12,80 @@ datasource db {
   relationMode = "prisma"
 }
 
-// Define the user table
-model Users {
-  id       Int    @id @default(autoincrement())
-  username String @unique @db.VarChar(50)
-  password String @db.VarChar(255)
-  name     String @db.VarChar(50)
-  lastname String @db.VarChar(50)
-  role     String @default("User") @db.VarChar(10)
+// ---------------------------------------------------------------------------
+// Better Auth models (owned by Better Auth; the `admin` plugin adds role/ban
+// fields to User, and `lastname` is a custom additional field).
+// ---------------------------------------------------------------------------
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  lastname      String?
+  role          String?   @default("user")
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  // Define a one-to-many relationship between User and Account
-  accounts Account[]
+  sessions Session[]
+  accounts AuthAccount[]
 
+  // App data scoped to the user
+  financeAccounts       Account[]
   transactionCategories TransactionCategory[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
+
+  @@index([userId])
+  @@map("session")
+}
+
+model AuthAccount {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
 }
 
 model Currency {
@@ -44,8 +105,8 @@ model Account {
   balance    Float    @default(0)
   currency   Currency @relation(fields: [currencyId], references: [id])
   currencyId Int
-  userId     Int
-  user       Users    @relation(fields: [userId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
 
   // Define a one-to-many relationship between Account and Transfer
   originTransfers  Transfer[] @relation("originTransfers")
@@ -83,8 +144,8 @@ model TransactionCategory {
 
   // Define a one-to-many relationship between TransactionCategory and Transaction
   transactions Transaction[]
-  User         Users?        @relation(fields: [userId], references: [id])
-  userId       Int?
+  User         User?         @relation(fields: [userId], references: [id])
+  userId       String?
 
   @@index([userId])
 }

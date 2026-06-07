@@ -91,7 +91,7 @@ export const updateTransactionCategory = async (req: Request, res: Response) => 
         }
 
         //Only admin users can update a public transaction category
-        if (transactionCategory.public && role !== 'Admin') {
+        if (transactionCategory.public && role !== 'admin') {
             res.status(403).send({
                 message: 'You can not update a public transaction category!'
             })
@@ -135,7 +135,7 @@ export const deleteTransactionCategory = async (req: Request, res: Response) => 
         }
 
         //Only admin users can delete a public transaction category
-        if (transactionCategory.public && role !== 'Admin') {
+        if (transactionCategory.public && role !== 'admin') {
             res.status(403).send({
                 message: 'You can not delete a public transaction category!'
             })

@@ -1,29 +1,36 @@
 import { Request, Response, NextFunction } from 'express'
-import jsonwebtoken from 'jsonwebtoken';
-const { verify } = jsonwebtoken;
+import { fromNodeHeaders } from 'better-auth/node'
 
-//import { User } from '../types';
-//import { Users } from '@/generated/prisma'
+import { auth } from '../lib/auth'
 
-function authenticateToken(req: Request, res: Response, next: NextFunction) {
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
-
-    if (token == null) {
-        return res.status(401).send("token is null")
-    }
-
-    if (process.env.TOKEN_SECRET) {
-        verify(token, process.env.TOKEN_SECRET, (err, user) => {
-
-            if (err) {
-                return res.status(403).send(err.message)
-            }
-            req.body.user = user
-            next()
+/**
+ * Validates the Better Auth session cookie and attaches the user to
+ * `req.body.user` as `{ userId, role, ... }` for the downstream controllers.
+ */
+async function authenticateToken(req: Request, res: Response, next: NextFunction) {
+    try {
+        const session = await auth.api.getSession({
+            headers: fromNodeHeaders(req.headers),
         })
-    } else {
-        res.status(500).json({ message: 'Internal server error' });
+
+        if (!session) {
+            return res.status(401).json({ message: 'Unauthorized' })
+        }
+
+        if (!req.body || typeof req.body !== 'object') {
+            req.body = {}
+        }
+
+        req.body.user = {
+            userId: session.user.id,
+            role: session.user.role ?? 'user',
+            email: session.user.email,
+            name: session.user.name,
+        }
+
+        next()
+    } catch (error) {
+        return res.status(401).json({ message: 'Unauthorized' })
     }
 }
 

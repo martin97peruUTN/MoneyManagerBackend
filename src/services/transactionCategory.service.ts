@@ -1,7 +1,7 @@
 import { Prisma } from '@/generated/prisma'
 import prisma from '../prisma'
 
-async function getAllTransactionCategoriesService(userId: number) {
+async function getAllTransactionCategoriesService(userId: string) {
 
     //It retrieves user owned and public transaction categories
     const transactionCategories = await prisma.transactionCategory.findMany({

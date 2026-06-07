@@ -1,14 +1,12 @@
 import express, { urlencoded, json, Express, Request, Response } from 'express';
 import cors from 'cors';
-//IMPORTANTE: si uso Typescript, no tengo que poner "type":"modules" en el package.json
-//Sino no traspila bien. Igualmente aca tengo que usar la notacion de import de TS
+import { toNodeHandler } from 'better-auth/node';
 import swaggerUi from 'swagger-ui-express';
 
+import { auth } from './lib/auth';
 import authenticateToken from './middleware/JWTAuthentication';
 import isAdmin from './middleware/AdminRoute';
 import { swaggerSpec } from './config/swagger';
-import { loginRoutes } from './routes/login.routes';
-import userCreationRoute from './routes/userCreation.routes';
 import userRoutes from './routes/user.routes';
 import accountRoutes from './routes/account.routes';
 import currencyRoutes from './routes/currency.routes';
@@ -16,19 +14,24 @@ import transactionCategoryRoutes from './routes/transactionCategory.routes';
 import transferRoutes from './routes/transfer.routes';
 import transactionRoutes from './routes/transaction.routes';
 
-//import { connectionDB } from './db.js';
-
 const app = express();
 
 //Settings
 // Default 1234 with Next.js on 3000 (set PORT in .env to override).
 const port = process.env.PORT || 1234
 
-//Middleware — when FRONTEND_ORIGIN is unset, reflect the request origin (localhost, 127.0.0.1, any port) for local dev.
+//Middleware — credentials must be allowed so the Better Auth session cookie is
+//sent on cross-origin requests. With FRONTEND_ORIGIN unset, reflect the request
+//origin for local dev; in production set it to the exact frontend URL.
 app.use(cors({
 	origin: process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN : true,
-	credentials: false
+	credentials: true
 }))
+
+//Better Auth catch-all — MUST be mounted before express.json() (it parses the
+//body itself) and before the /api JWT/session guard so /api/auth/* is public.
+app.all('/api/auth/*', toNodeHandler(auth))
+
 app.use(urlencoded({ extended: false }))
 app.use(json())
 
@@ -58,9 +61,6 @@ app.use('*/admin', isAdmin)
  */
 
 //Routes
-app.use(loginRoutes)
-//userCreationRoute is apart because it does not need authentication
-app.use(userCreationRoute)
 app.use('/api', userRoutes)
 app.use('/api', accountRoutes)
 app.use('/api', currencyRoutes)
