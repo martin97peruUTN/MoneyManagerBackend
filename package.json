@@ -4,11 +4,13 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "build": "rimraf dist && npx tsc",
-    "prestart": "npm run build",
-    "start": "node dist/app.js",
-    "preserve": "npm run build",
-    "serve": "concurrently \"npx tsc -w\"  \"nodemon dist/app.js\"",
+    "postinstall": "prisma generate",
+    "setup": "pnpm install && pnpm approve-builds --all && prisma db push",
+    "build": "rimraf dist && pnpm exec tsc",
+    "prestart": "pnpm run build",
+    "start": "node -r tsconfig-paths/register dist/app.js",
+    "preserve": "pnpm run build",
+    "serve": "concurrently \"pnpm exec tsc -w\" \"nodemon -r tsconfig-paths/register dist/app.js\"",
     "dev": "nodemon src/app.ts"
   },
   "author": "",
@@ -16,6 +18,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "@prisma/client-runtime-utils": "7.8.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "cors": "^2.8.6",
@@ -38,6 +41,7 @@
     "nodemon": "^3.1.11",
     "prisma": "^7.2.0",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

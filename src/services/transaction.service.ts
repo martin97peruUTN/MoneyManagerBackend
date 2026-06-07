@@ -1,4 +1,4 @@
-import { Prisma, Account, Transaction } from '@prisma/client'
+import { Prisma, Account, Transaction } from '@/generated/prisma'
 import prisma from '../prisma'
 
 async function getAllTransactionsService(userId: number, dateFrom: Date, dateTo: Date) {

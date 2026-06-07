@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { Prisma, TransactionCategory } from '@prisma/client'
+import { Prisma, TransactionCategory } from '@/generated/prisma'
 
 import * as miscFunctions from '../utils/miscFunctions'
 

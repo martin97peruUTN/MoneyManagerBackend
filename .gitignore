@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+package-lock.json
 /.pnp
 .pnp.js
 
@@ -12,6 +13,8 @@
 /build
 /dist
 /dist/app.js
+/prisma.config.js
+/src/generated
 
 # misc
 .DS_Store

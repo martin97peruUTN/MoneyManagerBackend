@@ -1,4 +1,4 @@
-import { Prisma, Currency } from '@prisma/client'
+import { Prisma, Currency } from '@/generated/prisma'
 import prisma from '../prisma'
 
 async function getAllCurrenciesService() {

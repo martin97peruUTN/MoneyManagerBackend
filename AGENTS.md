@@ -34,19 +34,22 @@ This file orients automated agents and humans working on **MoneyManagerBackend**
 ## Commands
 
 ```bash
-npm install
-npm run dev          # nodemon on src/app.ts
-npm run build        # tsc → dist/
-npm start            # build then node dist/app.js
-npm run serve        # watch tsc + nodemon dist (local workflow)
+pnpm install
+pnpm run dev          # nodemon on src/app.ts
+pnpm run build        # tsc → dist/
+pnpm start            # build then node dist/app.js
+pnpm run serve        # watch tsc + nodemon dist (local workflow)
 ```
 
 Prisma (from repo root):
 
 ```bash
-npx prisma generate
-npx prisma db push    # schema comments mention this for applying schema
+pnpm exec prisma generate   # also runs on pnpm install (postinstall)
+pnpm exec prisma db push    # apply schema to PostgreSQL
 ```
+
+Import generated types/client from `@/generated/prisma`, not `@prisma/client`.
+Requires `.npmrc` (`node-linker=hoisted`) and `@prisma/client-runtime-utils` for pnpm resolution.
 
 ## Environment
 

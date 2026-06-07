@@ -3,7 +3,7 @@ import jsonwebtoken from 'jsonwebtoken';
 const { verify } = jsonwebtoken;
 
 //import { User } from '../types';
-//import { User } from '@prisma/client'
+//import { Users } from '@/generated/prisma'
 
 function authenticateToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization']

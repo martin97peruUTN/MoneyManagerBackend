@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { Prisma, Account } from '@prisma/client'
+import { Prisma, Account } from '@/generated/prisma'
 
 import {
     getAllAccountsService,

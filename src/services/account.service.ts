@@ -1,4 +1,4 @@
-import { Prisma, Account } from '@prisma/client'
+import { Prisma, Account } from '@/generated/prisma'
 import prisma from '../prisma'
 
 async function getAllAccountsService(userId: number) {

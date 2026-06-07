@@ -1,4 +1,4 @@
-import { Prisma, Transfer, Account } from '@prisma/client'
+import { Prisma, Transfer, Account } from '@/generated/prisma'
 import prisma from '../prisma'
 
 async function getAllTransfersByUserService(userId: number, dateFrom: Date, dateTo: Date) {

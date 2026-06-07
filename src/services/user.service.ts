@@ -1,4 +1,4 @@
-import { Prisma, Users } from '@prisma/client'
+import { Prisma, Users } from '@/generated/prisma'
 import prisma from '../prisma'
 
 /** User shape safe to return from APIs (excludes password hash). */

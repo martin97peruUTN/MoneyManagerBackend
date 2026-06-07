@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { Prisma, Users } from '@prisma/client'
+import { Prisma, Users } from '@/generated/prisma'
 
 import {
     getAllUsersService,
