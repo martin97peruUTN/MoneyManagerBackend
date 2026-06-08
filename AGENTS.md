@@ -10,7 +10,7 @@ This file orients automated agents and humans working on **MoneyManagerBackend**
 - **ORM**: Prisma 7 with **PostgreSQL** (`prisma/schema.prisma`, generator `moduleFormat = "esm"`). Client is wired through `@prisma/adapter-pg` and `pg` (`src/prisma.ts`); **`DATABASE_URL` is required**.  
 - **Auth**: **Better Auth** (`src/lib/auth.ts`) is the single source of truth — email/password + Google + GitHub, cookie sessions, admin plugin. It owns the `user`/`session`/`account`(→`AuthAccount`)/`verification` tables. The session guard (`src/middleware/JWTAuthentication.ts`) reads the cookie via `auth.api.getSession` and attaches `{ userId, role, email, name }` to `req.body.user` for controllers.  
 - **Docs**: Swagger UI at `/api-docs` (`src/config/swagger.ts`).  
-- **Deploy**: Vercel (`vercel.json` points `@vercel/node` at `src/app.ts`); Render/other hosts should use the `tsx src/app.ts` start command. No compiled `dist/`.
+- **Deploy**: Vercel (`vercel.json` points `@vercel/node` at `src/app.ts`); **Render** via `render.yaml` (Node 22, pnpm, `pnpm start` = `tsx src/app.ts`). No compiled `dist/`.
 
 ## Repository layout
 
@@ -69,6 +69,34 @@ OAuth callback URLs to register: `{BETTER_AUTH_URL}/api/auth/callback/google` an
 ## Production note (cross-site cookies)
 
 If frontend and backend are on **different domains**, the Better Auth session cookie must be `SameSite=None; Secure`; set the exact `FRONTEND_ORIGIN` and serve both over HTTPS. Same-host localhost (different ports) works in dev without extra config.
+
+## Render (fresh deploy)
+
+1. **Postgres**: Render dashboard → New → PostgreSQL. Copy the **Internal** or **External** connection string into `DATABASE_URL`.
+2. **Web service**: New → Web Service → connect `MoneyManagerBackend` repo (or New → Blueprint if using `render.yaml`).
+3. Render reads `.node-version` (**22.12.0**) and `packageManager` (**pnpm**). Do **not** set build to `yarn`.
+   - **Build command**: `pnpm install --frozen-lockfile`
+   - **Start command**: `pnpm start`
+4. **Environment** (required):
+
+   | Variable | Example |
+   |----------|---------|
+   | `DATABASE_URL` | from Render Postgres |
+   | `BETTER_AUTH_SECRET` | `pnpm dlx @better-auth/cli secret` |
+   | `BETTER_AUTH_URL` | `https://your-service.onrender.com` |
+   | `FRONTEND_ORIGIN` | `https://your-frontend.up.railway.app` |
+
+   Optional OAuth: `GOOGLE_*`, `GITHUB_*`. Render sets `PORT` automatically.
+
+5. After first deploy, apply schema once (local shell with prod `DATABASE_URL`):
+
+   ```bash
+   pnpm exec prisma db push
+   ```
+
+6. OAuth callback URLs: `{BETTER_AUTH_URL}/api/auth/callback/google` and `/callback/github`.
+
+Health check path (optional): `/api/auth/ok`.
 
 ## Related repos
 
