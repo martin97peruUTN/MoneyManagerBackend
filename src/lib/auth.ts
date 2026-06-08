@@ -15,15 +15,21 @@ const frontendOrigin = (process.env.FRONTEND_ORIGIN ?? 'http://localhost:3000').
 
 /**
  * URL browsers use for `/api/auth/*` (callbacks, cookie domain).
- * Dev: backend (`http://localhost:$PORT`). Prod: defaults to FRONTEND_ORIGIN when
- * the frontend proxies `/api`. Override with BETTER_AUTH_URL if needed.
+ * Dev: backend (`http://localhost:$PORT`). Prod: FRONTEND_ORIGIN when it is not
+ * localhost (frontend proxies /api). Override with BETTER_AUTH_URL if needed.
  */
-const authPublicUrl = (
-    process.env.BETTER_AUTH_URL ??
-    (process.env.NODE_ENV === 'production'
-        ? frontendOrigin
-        : `http://localhost:${process.env.PORT ?? 1234}`)
-).replace(/\/$/, '')
+function resolveAuthPublicUrl(): string {
+    if (process.env.BETTER_AUTH_URL) {
+        return process.env.BETTER_AUTH_URL.replace(/\/$/, '')
+    }
+    const isLocalFrontend = /^https?:\/\/localhost(:\d+)?$/i.test(frontendOrigin)
+    if (!isLocalFrontend) {
+        return frontendOrigin
+    }
+    return `http://localhost:${process.env.PORT ?? 1234}`
+}
+
+const authPublicUrl = resolveAuthPublicUrl()
 
 // Each *.onrender.com subdomain is a separate site (public suffix). Cross-origin
 // fetch login needs SameSite=None; Secure. Localhost different ports stay lax.
