@@ -83,7 +83,7 @@ If frontend and backend are on **different domains**, the Better Auth session co
    |----------|---------|
    | `DATABASE_URL` | from Render Postgres |
    | `BETTER_AUTH_SECRET` | `pnpm dlx @better-auth/cli secret` |
-   | `BETTER_AUTH_URL` | `https://your-service.onrender.com` |
+   | `BETTER_AUTH_URL` | `https://your-frontend.onrender.com` if using frontend `/api` proxy, else backend URL |
    | `FRONTEND_ORIGIN` | `https://your-frontend.up.railway.app` |
 
    Optional OAuth: `GOOGLE_*`, `GITHUB_*`. Render sets `PORT` automatically.

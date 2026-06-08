@@ -8,6 +8,23 @@ import prisma from '../prisma'
 dotenv.config()
 
 const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:3000'
+const backendOrigin = process.env.BETTER_AUTH_URL ?? 'http://localhost:1234'
+
+// Each *.onrender.com subdomain is a separate site (public suffix). Cross-origin
+// fetch login needs SameSite=None; Secure. Localhost different ports stay lax.
+function isCrossSiteAuth(): boolean {
+    try {
+        const frontendHost = new URL(frontendOrigin).hostname
+        const backendHost = new URL(backendOrigin).hostname
+        if (frontendHost === backendHost) return false
+        if (frontendHost === 'localhost' && backendHost === 'localhost') return false
+        return true
+    } catch {
+        return false
+    }
+}
+
+const crossSiteAuth = isCrossSiteAuth()
 
 // Only register a social provider when its credentials are present, so the
 // server still boots before the OAuth apps are configured.
@@ -53,6 +70,16 @@ export const auth = betterAuth({
         },
     },
     trustedOrigins: [frontendOrigin],
+    ...(crossSiteAuth
+        ? {
+              advanced: {
+                  useSecureCookies: true,
+                  defaultCookieAttributes: {
+                      sameSite: 'none',
+                  },
+              },
+          }
+        : {}),
     plugins: [admin()],
 })
 

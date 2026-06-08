@@ -3,7 +3,6 @@
 # Deploy:
 
 https://money-manager-backend.onrender.com
-https://money-manager-backend.vercel.app/
 
 # Frontend
 
