@@ -54,9 +54,9 @@ Requires `.npmrc` (`node-linker=hoisted`) and `@prisma/client-runtime-utils` for
 
 ## Environment
 
-See `.env.example`. Required: `DATABASE_URL`, `BETTER_AUTH_SECRET` (>= 32 chars), `BETTER_AUTH_URL` (this backend's public URL), `FRONTEND_ORIGIN` (exact frontend origin for CORS + trustedOrigins). Optional: `PORT` (default 1234), and OAuth creds `GOOGLE_CLIENT_ID/SECRET`, `GITHUB_CLIENT_ID/SECRET` (a provider is only registered when both are set, so the server boots without them). `TOKEN_SECRET` is gone.
+See `.env.example`. Required: `DATABASE_URL`, `BETTER_AUTH_SECRET` (>= 32 chars), `FRONTEND_ORIGIN` (frontend URL for CORS + trustedOrigins; in production also used as the public auth URL when the frontend proxies `/api`). Optional: `PORT` (default 1234), `BETTER_AUTH_URL` (override auth/callback base URL), OAuth creds `GOOGLE_*` / `GITHUB_*`.
 
-OAuth callback URLs to register: `{BETTER_AUTH_URL}/api/auth/callback/google` and `/callback/github`.
+OAuth callback URLs: `{FRONTEND_ORIGIN}/api/auth/callback/google` and `/callback/github` (prod with proxy). Dev: `http://localhost:1234/api/auth/callback/...`.
 
 ## Conventions for changes
 
@@ -83,10 +83,9 @@ If frontend and backend are on **different domains**, the Better Auth session co
    |----------|---------|
    | `DATABASE_URL` | from Render Postgres |
    | `BETTER_AUTH_SECRET` | `pnpm dlx @better-auth/cli secret` |
-   | `BETTER_AUTH_URL` | `https://your-frontend.onrender.com` if using frontend `/api` proxy, else backend URL |
-   | `FRONTEND_ORIGIN` | `https://your-frontend.up.railway.app` |
+   | `FRONTEND_ORIGIN` | `https://your-frontend.onrender.com` |
 
-   Optional OAuth: `GOOGLE_*`, `GITHUB_*`. Render sets `PORT` automatically.
+   Optional: `BETTER_AUTH_URL` (only if auth is not served from `FRONTEND_ORIGIN`), OAuth `GOOGLE_*` / `GITHUB_*`. Render sets `PORT` automatically.
 
 5. After first deploy, apply schema once (local shell with prod `DATABASE_URL`):
 
@@ -94,7 +93,7 @@ If frontend and backend are on **different domains**, the Better Auth session co
    pnpm exec prisma db push
    ```
 
-6. OAuth callback URLs: `{BETTER_AUTH_URL}/api/auth/callback/google` and `/callback/github`.
+6. OAuth callback URLs: `{FRONTEND_ORIGIN}/api/auth/callback/google` and `/callback/github`.
 
 Health check path (optional): `/api/auth/ok`.
 

@@ -7,17 +7,32 @@ import prisma from '../prisma'
 
 dotenv.config()
 
-const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:3000'
-const backendOrigin = process.env.BETTER_AUTH_URL ?? 'http://localhost:1234'
+/** Frontend origin — CORS, trustedOrigins, and (in prod) the public auth URL. */
+const frontendOrigin = (process.env.FRONTEND_ORIGIN ?? 'http://localhost:3000').replace(
+    /\/$/,
+    '',
+)
+
+/**
+ * URL browsers use for `/api/auth/*` (callbacks, cookie domain).
+ * Dev: backend (`http://localhost:$PORT`). Prod: defaults to FRONTEND_ORIGIN when
+ * the frontend proxies `/api`. Override with BETTER_AUTH_URL if needed.
+ */
+const authPublicUrl = (
+    process.env.BETTER_AUTH_URL ??
+    (process.env.NODE_ENV === 'production'
+        ? frontendOrigin
+        : `http://localhost:${process.env.PORT ?? 1234}`)
+).replace(/\/$/, '')
 
 // Each *.onrender.com subdomain is a separate site (public suffix). Cross-origin
 // fetch login needs SameSite=None; Secure. Localhost different ports stay lax.
 function isCrossSiteAuth(): boolean {
     try {
         const frontendHost = new URL(frontendOrigin).hostname
-        const backendHost = new URL(backendOrigin).hostname
-        if (frontendHost === backendHost) return false
-        if (frontendHost === 'localhost' && backendHost === 'localhost') return false
+        const authHost = new URL(authPublicUrl).hostname
+        if (frontendHost === authHost) return false
+        if (frontendHost === 'localhost' && authHost === 'localhost') return false
         return true
     } catch {
         return false
@@ -44,7 +59,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
 }
 
 export const auth = betterAuth({
-    baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:1234',
+    baseURL: authPublicUrl,
     secret: process.env.BETTER_AUTH_SECRET,
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     emailAndPassword: {
